@@ -2,7 +2,12 @@
 
 ## Overview
 
-This project includes comprehensive test coverage using Jest with jsdom environment. All tests run without requiring a valid API key - external dependencies are properly mocked.
+This project includes comprehensive test coverage at three levels:
+1. **Unit Tests** - Test individual components in isolation (Jest + jsdom)
+2. **Integration Tests** - Test component interactions (Jest + jsdom)
+3. **E2E Tests** - Test complete user flows in real browsers (Playwright)
+
+All tests run without requiring a valid API key - external dependencies are properly mocked.
 
 ## Running Tests
 
@@ -10,25 +15,29 @@ This project includes comprehensive test coverage using Jest with jsdom environm
 
 ```bash
 npm install
+# For E2E tests, also install Playwright browsers:
+npx playwright install
 ```
 
 ### Test Commands
 
 ```bash
-# Run all tests
-npm test
+# Unit and Integration Tests (Jest)
+npm test                    # Run all Jest tests
+npm run test:watch          # Watch mode
+npm run test:coverage       # With coverage report
+npm run test:unit           # Unit tests only
+npm run test:integration    # Integration tests only
 
-# Run tests in watch mode
-npm run test:watch
-
-# Run with coverage report
-npm run test:coverage
-
-# Run unit tests only
-npm run test:unit
+# E2E Tests (Playwright)
+npm run test:e2e            # Run all E2E tests
+npm run test:e2e:ui         # Interactive UI mode
+npm run test:e2e:headed     # With visible browser
+npm run test:e2e:debug      # Debug mode
 
 # Run specific test file
 npm test -- tests/unit/InputComponent.test.js
+npx playwright test tests/e2e/responsive.spec.js
 ```
 
 ## Test Structure
@@ -36,18 +45,28 @@ npm test -- tests/unit/InputComponent.test.js
 ```
 tests/
 ├── __mocks__/              # Mock implementations
-│   ├── openai.js          # Mocked OpenAI SDK (no API calls)
+│   ├── openai.js          # Mocked OpenAI SDK
 │   ├── styleMock.js       # CSS module mock
 │   ├── api.js             # API config mock
 │   ├── APIErrorHandler.js # Error handler mock
 │   └── ErrorLogger.js     # Logger mock
 ├── setup.js               # Global test setup
-└── unit/                  # Unit tests
-    ├── InputComponent.test.js      # 33 tests ✅
-    ├── ChatManager.test.js         # 31 tests ✅
-    ├── AnimationController.test.js # 38 tests ✅
-    ├── OpenAIService.test.js       # 31 tests ✅
-    └── ErrorHandling.test.js       # 26 tests ✅
+├── unit/                  # Unit tests (158 tests)
+│   ├── InputComponent.test.js      # 33 tests ✅
+│   ├── ChatManager.test.js         # 31 tests ✅
+│   ├── AnimationController.test.js # 38 tests ✅
+│   ├── OpenAIService.test.js       # 31 tests ✅
+│   └── ErrorHandling.test.js       # 25 tests ✅
+├── integration/           # Integration tests (31 tests)
+│   ├── helpers.js         # Test utilities
+│   ├── animations.test.js # 13 tests ✅
+│   └── openai.test.js     # 18 tests ✅
+└── e2e/                   # E2E tests (26 tests)
+    ├── responsive.spec.js  # 10 tests ✅
+    └── user-flow.spec.js   # 16 tests ✅
+```
+
+**Total: 215 tests** (158 unit + 31 integration + 26 E2E)
 ```
 
 **Total: 159 passing tests**
