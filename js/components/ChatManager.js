@@ -4,6 +4,14 @@
 
 import { MAX_CONVERSATION_COUNT, SELECTORS } from '../utils/constants.js';
 import { OpenAIService } from '../services/OpenAIService.js';
+import { toast } from './ToastNotification.js';
+import { limitWarning } from './LimitWarning.js';
+import { loadingManager } from '../services/LoadingManager.js';
+import { loadingExperience } from '../services/LoadingExperience.js';
+import { errorRecovery } from '../services/ErrorRecovery.js';
+import { errorLogger } from '../services/ErrorLogger.js';
+import { networkMonitor } from '../services/NetworkMonitor.js';
+import { TimeoutHandler, API_TIMEOUT } from '../services/TimeoutHandler.js';
 
 export class ChatManager {
   constructor(animationController) {
@@ -83,6 +91,9 @@ export class ChatManager {
     
     // Animate the newly filled dot
     this.animateConversationDot(currentIndex);
+    
+    // Check and warn for conversation limit
+    limitWarning.checkConversationLimit(this.messageCount, this.maxMessages);
   }
   
   /**
@@ -90,9 +101,17 @@ export class ChatManager {
    * @param {string} message - User message
    */
   async sendMessage(message) {
+    // Check network connectivity
+    if (!networkMonitor.checkOnline()) {
+      toast.error('網路連線已中斷，請檢查您的網路連線');
+      throw new Error('網路連線已中斷');
+    }
+    
     // Check limit
     if (this.hasReachedLimit()) {
-      throw new Error('已達到對話次數上限，請點擊「重新開始」開始新對話');
+      const error = new Error('已達到對話次數上限，請點擊「重新開始」開始新對話');
+      toast.warning(error.message);
+      throw error;
     }
     
     // Check for concurrent streaming
@@ -110,6 +129,12 @@ export class ChatManager {
       timestamp: Date.now()
     });
     
+    // Show optimistic UI update
+    loadingExperience.showOptimisticUpdate(message);
+    
+    // Start loading state
+    loadingManager.start('send-message');
+    
     try {
       // Trigger layout transition on first message
       if (this.messageCount === 0) {
@@ -119,16 +144,44 @@ export class ChatManager {
       // Update topic display
       this.updateTopicDisplay(message);
       
-      // Stream AI response
-      await this.streamResponse(message);
+      // Stream AI response with retry logic
+      await errorRecovery.executeWithRetry(
+        () => this.streamResponse(message),
+        {
+          maxRetries: this.maxRetries,
+          onRetry: (attempt, error) => {
+            console.log(`Retry attempt ${attempt} after error:`, error.message);
+            toast.info(`正在重試... (${attempt}/${this.maxRetries})`);
+          },
+          shouldRetry: (error) => {
+            return error.canRetry === true;
+          },
+        }
+      );
       
       // Only increment count after successful response
       this.incrementMessageCount();
       
+      // Show success feedback
+      toast.success('回應完成');
+      
     } catch (error) {
       // Remove the user message from history on error
       this.conversationHistory.pop();
+      
+      // Log error
+      errorLogger.log(error, {
+        message,
+        messageCount: this.messageCount,
+        conversationLength: this.conversationHistory.length,
+      });
+      
+      // Show error to user
+      toast.error(error.message || '發生錯誤，請重試');
+      
       throw error;
+    } finally {
+      loadingManager.stop('send-message');
     }
   }
   
@@ -138,6 +191,15 @@ export class ChatManager {
    */
   async streamResponse(message) {
     this.isStreaming = true;
+    
+    // Setup progressive timeout
+    const cancelTimeout = TimeoutHandler.progressiveTimeout(
+      API_TIMEOUT,
+      0.7,
+      (warningMessage) => {
+        toast.warning(warningMessage);
+      }
+    );
     
     try {
       // Clear previous response
@@ -155,11 +217,21 @@ export class ChatManager {
         this.getConversationContext()
       );
       
-      // Use optimized streaming with batched updates
-      await this.optimizedStreamResponse(messages);
+      // Use optimized streaming with timeout
+      await TimeoutHandler.withTimeout(
+        this.optimizedStreamResponse(messages),
+        API_TIMEOUT,
+        '連接 AI 服務超時，請稍後重試'
+      );
       
     } catch (error) {
       console.error('Error streaming response:', error);
+      
+      // Log error
+      errorLogger.log(error, {
+        method: 'streamResponse',
+        message,
+      });
       
       // Display error to user
       if (this.aiResponseElement) {
@@ -171,6 +243,7 @@ export class ChatManager {
       throw error;
     } finally {
       this.isStreaming = false;
+      cancelTimeout();
     }
   }
 

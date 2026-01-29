@@ -98,20 +98,32 @@
         <header class="chat-header fixed top-0 left-0 right-0 bg-bg-primary/95 backdrop-blur-sm border-b border-border-color z-10 safe-area-top">
             <div class="container mx-auto px-4 py-3 flex items-center justify-between">
                 <h1 class="text-xl font-bold text-white">絢</h1>
-                <button 
-                    id="reset-button"
-                    class="flex items-center gap-2 text-text-muted hover:text-white 
-                           text-sm px-3 py-1.5 rounded-lg
-                           hover:bg-white/5
-                           transition-all duration-200"
-                    aria-label="重新開始"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    <span>重新開始</span>
-                </button>
+                <div class="flex items-center gap-3">
+                    <button 
+                        id="help-button"
+                        class="text-text-muted hover:text-white transition-colors"
+                        aria-label="說明"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                    <button 
+                        id="reset-button"
+                        class="flex items-center gap-2 text-text-muted hover:text-white 
+                               text-sm px-3 py-1.5 rounded-lg
+                               hover:bg-white/5
+                               transition-all duration-200"
+                        aria-label="重新開始"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>重新開始</span>
+                    </button>
+                </div>
             </div>
         </header>
         
@@ -191,6 +203,35 @@
             </div>
         </footer>
         
+    </div>
+    
+    <!-- Network status toast (Task 6.1.2) -->
+    <div id="network-toast" class="network-toast hidden"></div>
+    
+    <!-- Help Modal (Task 6.3.3) -->
+    <div id="help-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">使用說明</h2>
+            
+            <div class="space-y-4 text-text-secondary text-sm">
+                <div>
+                    <h3 class="text-white font-medium mb-1">如何使用</h3>
+                    <p>輸入您的想法（最多 20 字），按 Enter 或點擊傳送按鈕，AI 會為您生成絢爛的回應。</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-white font-medium mb-1">對話限制</h3>
+                    <p>每次對話最多可進行 5 個回合。達到上限後可以點擊「重新開始」開始新對話。</p>
+                </div>
+            </div>
+            
+            <button 
+                id="close-help"
+                class="mt-6 w-full bg-white text-bg-primary py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+            >
+                了解了
+            </button>
+        </div>
     </div>
     
     <!-- JavaScript modules -->
