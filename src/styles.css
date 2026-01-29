@@ -363,6 +363,92 @@
   .safe-area-bottom {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
+  
+  /* Toast notification styles (Task 6.3.1) */
+  .toast {
+    @apply flex items-center gap-2 px-4 py-3 rounded-lg
+           bg-bg-secondary border border-border-color
+           text-white text-sm
+           transform translate-x-full opacity-0
+           transition-all duration-300;
+  }
+  
+  .toast-visible {
+    @apply translate-x-0 opacity-100;
+  }
+  
+  .toast-hiding {
+    @apply translate-x-full opacity-0;
+  }
+  
+  .toast-success {
+    @apply border-green-500/50;
+  }
+  
+  .toast-success .toast-icon {
+    @apply text-green-400;
+  }
+  
+  .toast-error {
+    @apply border-red-500/50;
+  }
+  
+  .toast-error .toast-icon {
+    @apply text-red-400;
+  }
+  
+  .toast-warning {
+    @apply border-yellow-500/50;
+  }
+  
+  .toast-warning .toast-icon {
+    @apply text-yellow-400;
+  }
+  
+  .toast-info {
+    @apply border-blue-500/50;
+  }
+  
+  .toast-info .toast-icon {
+    @apply text-blue-400;
+  }
+  
+  /* Network status toast (Task 6.1.2) */
+  .network-toast {
+    @apply fixed top-4 right-4 px-4 py-2 rounded-lg hidden
+           transition-all duration-300 transform z-50;
+  }
+  
+  .network-toast.success {
+    @apply bg-green-500/90 text-white;
+  }
+  
+  .network-toast.error {
+    @apply bg-red-500/90 text-white;
+  }
+  
+  /* Modal styles (Task 6.3.3) */
+  .modal-backdrop {
+    @apply fixed inset-0 bg-black/80 flex items-center justify-center z-50;
+  }
+  
+  .modal-content {
+    @apply bg-bg-secondary rounded-xl p-6 max-w-md w-full mx-4
+           shadow-2xl border border-border-color;
+  }
+  
+  .modal-title {
+    @apply text-xl font-bold text-white mb-4;
+  }
+  
+  .modal-description {
+    @apply text-text-secondary text-sm;
+  }
+  
+  /* Skeleton container styles */
+  .skeleton-container {
+    @apply py-4;
+  }
 }
 
 @layer utilities {

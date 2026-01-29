@@ -4,6 +4,8 @@
 
 import OpenAI from 'openai';
 import { API_CONFIG } from '../config/api.js';
+import { APIErrorHandler } from './APIErrorHandler.js';
+import { errorLogger } from './ErrorLogger.js';
 
 export class OpenAIService {
   constructor() {
@@ -52,7 +54,21 @@ export class OpenAIService {
       
     } catch (error) {
       console.error('OpenAI API Error:', error);
-      throw this.handleError(error);
+      
+      // Log error with context
+      errorLogger.log(error, {
+        method: 'sendMessage',
+        messageCount: messages.length,
+      });
+      
+      // Handle and transform error
+      const errorInfo = APIErrorHandler.handle(error);
+      const transformedError = new Error(errorInfo.message);
+      transformedError.type = errorInfo.type;
+      transformedError.canRetry = errorInfo.canRetry;
+      transformedError.suggestion = errorInfo.suggestion;
+      
+      throw transformedError;
     }
   }
 
@@ -87,7 +103,22 @@ export class OpenAIService {
       
     } catch (error) {
       console.error('Streaming error:', error);
-      onError?.(this.handleError(error));
+      
+      // Log error with context
+      errorLogger.log(error, {
+        method: 'sendStreamingMessage',
+        messageCount: messages.length,
+        partialContent: fullContent.substring(0, 100),
+      });
+      
+      // Handle and transform error
+      const errorInfo = APIErrorHandler.handle(error);
+      const transformedError = new Error(errorInfo.message);
+      transformedError.type = errorInfo.type;
+      transformedError.canRetry = errorInfo.canRetry;
+      transformedError.suggestion = errorInfo.suggestion;
+      
+      onError?.(transformedError);
     }
   }
 
@@ -120,47 +151,18 @@ export class OpenAIService {
   }
 
   /**
-   * Handle OpenAI API errors
+   * Handle OpenAI API errors (Legacy - kept for compatibility)
    * @param {Error} error - The error object
    * @returns {Error} Formatted error with user-friendly message
+   * @deprecated Use APIErrorHandler.handle() instead
    */
   handleError(error) {
-    // OpenAI specific errors
-    if (error instanceof OpenAI.APIError) {
-      const status = error.status;
-      
-      switch (status) {
-        case 400:
-          return new Error('請求格式錯誤，請稍後重試');
-        case 401:
-          return new Error('API 驗證失敗，請聯繫管理員');
-        case 403:
-          return new Error('沒有權限存取此 API');
-        case 404:
-          return new Error('找不到請求的資源');
-        case 429:
-          return new Error('請求過於頻繁，請稍後重試');
-        case 500:
-        case 502:
-        case 503:
-          return new Error('AI 服務暫時無法使用，請稍後重試');
-        default:
-          return new Error(`API 錯誤 (${status}): ${error.message}`);
-      }
-    }
+    const errorInfo = APIErrorHandler.handle(error);
+    const transformedError = new Error(errorInfo.message);
+    transformedError.type = errorInfo.type;
+    transformedError.canRetry = errorInfo.canRetry;
     
-    // Network errors
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      return new Error('無法連接到 AI 服務，請檢查網路連線');
-    }
-    
-    // Timeout errors
-    if (error.name === 'AbortError' || error.message.includes('timeout')) {
-      return new Error('請求逾時，請稍後重試');
-    }
-    
-    // Unknown errors
-    return new Error('發生未知錯誤，請稍後重試');
+    return transformedError;
   }
 
   /**
