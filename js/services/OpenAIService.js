@@ -5,6 +5,9 @@
 
 export class OpenAIService {
   constructor(apiKey) {
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim() === '') {
+      throw new Error('Valid API key is required for OpenAIService');
+    }
     this.apiKey = apiKey;
     this.baseURL = 'https://api.openai.com/v1';
     console.log('OpenAIService initialized');

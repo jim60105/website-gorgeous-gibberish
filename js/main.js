@@ -36,5 +36,10 @@ function initializeApp() {
     console.log('Application initialized successfully');
   } catch (error) {
     console.error('Failed to initialize application:', error);
+    // Display error message to user
+    const appElement = document.getElementById('app');
+    if (appElement) {
+      appElement.innerHTML = '<div style="color: red; padding: 20px;">Failed to initialize application. Please refresh the page.</div>';
+    }
   }
 }

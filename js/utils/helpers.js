@@ -13,6 +13,9 @@ export function sleep(ms) {
 
 /**
  * Sanitize HTML to prevent XSS attacks
+ * Note: This is a basic sanitization for text content.
+ * For comprehensive XSS protection with rich HTML content,
+ * consider using a dedicated library like DOMPurify.
  * @param {string} str - String to sanitize
  * @returns {string} Sanitized string
  */
