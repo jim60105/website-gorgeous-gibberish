@@ -122,6 +122,8 @@
 }
 ```
 
+> 註：優先使用 Tailwind 的 `transition` 與 `animation` 工具（或相關 plugin）來實作微互動與轉場；當需要複雜的 `@keyframes` 或無法由 Tailwind 實現的動畫時，再採用自訂 `@keyframes`。
+
 ### 流式輸出動畫
 ```css
 /* 打字機效果 */
@@ -214,6 +216,8 @@ class InputComponent {
   }
 }
 ```
+
+// 提示：在實作時，建議以模組化的純 JavaScript 與事件委派（event delegation）為優先，並盡量使用 Tailwind 的 util classes 進行樣式控制。
 
 ### 對話管理組件 (ChatManager)
 ```javascript
