@@ -15,6 +15,79 @@
 
 Think of it as an AI that loves to elaborate. You give it a seed, it grows a garden of words.
 
+### Features
+
+- 🎨 **Minimalist Dark Design**: Clean, distraction-free interface
+- 💬 **Streaming Responses**: Real-time AI text generation with typewriter effect
+- 🎯 **Constrained Input**: Maximum 20 characters per message
+- 📊 **Conversation Tracking**: Visual progress indicators (5 messages per conversation)
+- 🔄 **Easy Reset**: Start fresh conversations anytime
+- 🌐 **Fully Responsive**: Works seamlessly on desktop, tablet, and mobile
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/jim60105/website-gorgeous-gibberish.git
+cd website-gorgeous-gibberish
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Configure API settings:
+   - Edit `js/config/api.js` with your API endpoint and key
+   - See [API Configuration Guide](docs/API_CONFIGURATION.md) for details
+
+4. Build CSS:
+```bash
+npm run build:css
+```
+
+5. Start development server:
+```bash
+npm run start
+```
+
+6. Open browser at `http://localhost:3000`
+
+### Available Commands
+
+- `npm run build:css` - Build CSS with Tailwind (production)
+- `npm run watch:css` - Watch CSS changes (development)
+- `npm run dev` - Start live-server on port 3000
+- `npm run start` - Watch CSS and start dev server simultaneously
+
+---
+
+## Technology Stack
+
+- **Frontend**: Vanilla JavaScript (ES6+), HTML5, CSS3
+- **Styling**: Tailwind CSS v3.4.19
+- **AI Integration**: OpenAI JS SDK
+- **Dev Tools**: live-server, Tailwind CLI
+- **Language**: 正體中文 (Traditional Chinese)
+
+---
+
+## Documentation
+
+- 📋 [Requirements](docs/requirements.md) - Feature specifications
+- 🎨 [Design](docs/design.md) - Technical architecture
+- ✅ [Tasks](docs/tasks.md) - Implementation checklist
+- 🔧 [API Configuration](docs/API_CONFIGURATION.md) - Setup guide
+
 ---
 
 ## License
