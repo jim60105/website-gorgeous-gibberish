@@ -10,8 +10,73 @@
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
     <!-- Main content container -->
-    <main id="app" class="container mx-auto px-4">
-        <!-- Initial state / Chat state content -->
+    <main id="app" class="container mx-auto px-4 min-h-screen flex flex-col justify-center items-center">
+        <!-- Hero Title (Initial State) -->
+        <div class="hero-title text-center mb-8">
+            <h1 class="text-6xl font-bold mb-4">絢</h1>
+            <p class="text-text-secondary text-lg">華麗的廢話產生器</p>
+        </div>
+
+        <!-- Chat Header (Hidden initially) -->
+        <div class="chat-header hidden w-full max-w-xl mb-4">
+            <div class="flex justify-between items-center">
+                <!-- Conversation dots indicator -->
+                <div id="conversation-dots" class="text-lg tracking-wider" aria-label="對話次數">
+                    ○ ○ ○ ○ ○
+                </div>
+                <!-- Reset button -->
+                <button 
+                    id="reset-button"
+                    class="text-text-muted hover:text-white transition-colors duration-200 text-sm"
+                    aria-label="重新開始"
+                >
+                    重新開始
+                </button>
+            </div>
+            <!-- Topic display -->
+            <div class="mt-4">
+                <span class="text-text-muted text-sm">主題：</span>
+                <span id="topic-display" class="text-text-secondary transition-opacity duration-300 opacity-0"></span>
+            </div>
+        </div>
+
+        <!-- AI Response Container (Hidden initially) -->
+        <div id="ai-response-container" class="hidden w-full max-w-xl mb-8 flex-1 overflow-y-auto">
+            <div id="ai-response" class="text-ai-response leading-relaxed whitespace-pre-wrap"></div>
+        </div>
+
+        <!-- Input container -->
+        <div id="input-container" class="w-full max-w-xl mx-auto">
+            <div class="relative flex items-center gap-2">
+                <input 
+                    type="text" 
+                    id="user-input"
+                    class="flex-1 bg-bg-secondary border border-border-color rounded-lg px-4 py-3 
+                           text-text-primary placeholder-text-muted
+                           focus:outline-none focus:border-white focus:ring-1 focus:ring-white/10
+                           transition-all duration-200"
+                    placeholder=""
+                    maxlength="20"
+                    autocomplete="off"
+                >
+                <button 
+                    id="send-button"
+                    class="bg-white text-bg-primary px-4 py-3 rounded-lg font-medium
+                           hover:bg-gray-200 active:bg-gray-300
+                           disabled:opacity-50 disabled:cursor-not-allowed
+                           transition-all duration-200"
+                    aria-label="發送訊息"
+                >
+                    →
+                </button>
+            </div>
+            
+            <!-- Character counter and error message -->
+            <div class="flex justify-between items-center mt-2">
+                <div id="input-error" class="text-red-400 text-sm opacity-0 transition-opacity duration-200" aria-live="polite"></div>
+                <span id="char-count" class="text-meta text-text-muted ml-auto">0/20</span>
+            </div>
+        </div>
     </main>
     
     <!-- JavaScript modules -->
