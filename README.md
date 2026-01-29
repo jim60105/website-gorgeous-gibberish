@@ -23,6 +23,11 @@ Think of it as an AI that loves to elaborate. You give it a seed, it grows a gar
 - 📊 **Conversation Tracking**: Visual progress indicators (5 messages per conversation)
 - 🔄 **Easy Reset**: Start fresh conversations anytime
 - 🌐 **Fully Responsive**: Works seamlessly on desktop, tablet, and mobile
+- 🚨 **Error Handling**: Comprehensive error recovery with retry logic
+- 🔔 **Toast Notifications**: Non-intrusive status updates
+- 📶 **Network Monitoring**: Real-time connection status tracking
+- ✨ **Smooth Animations**: GPU-accelerated transitions with reduced motion support
+- ⚙️ **Loading States**: Visual feedback for all async operations
 
 ---
 
@@ -69,13 +74,36 @@ npm run start
 - `npm run dev` - Start live-server on port 3000
 - `npm run start` - Watch CSS and start dev server simultaneously
 
+### Testing Commands
+
+```bash
+# Unit & Integration Tests
+npm test                    # Run all Jest tests
+npm run test:unit           # Unit tests only
+npm run test:integration    # Integration tests only
+npm run test:watch          # Watch mode
+npm run test:coverage       # With coverage report
+
+# E2E Tests (Playwright)
+npm run test:e2e            # Run all E2E tests
+npm run test:e2e:ui         # Interactive UI mode
+npm run test:e2e:headed     # With visible browser
+npm run test:e2e:debug      # Debug mode
+
+# First-time E2E setup
+npx playwright install
+```
+
+**Test Coverage**: 215 tests (158 unit + 31 integration + 26 E2E)
+
 ---
 
 ## Technology Stack
 
 - **Frontend**: Vanilla JavaScript (ES6+), HTML5, CSS3
 - **Styling**: Tailwind CSS v3.4.19
-- **AI Integration**: OpenAI JS SDK
+- **AI Integration**: OpenAI JS SDK v6.17.0
+- **Testing**: Jest + Playwright (215 tests)
 - **Dev Tools**: live-server, Tailwind CLI
 - **Language**: 正體中文 (Traditional Chinese)
 
@@ -87,6 +115,9 @@ npm run start
 - 🎨 [Design](docs/design.md) - Technical architecture
 - ✅ [Tasks](docs/tasks.md) - Implementation checklist
 - 🔧 [API Configuration](docs/API_CONFIGURATION.md) - Setup guide
+- 🧪 [Testing](docs/testing.md) - Testing documentation
+- 🎭 [E2E Testing](docs/e2e-testing.md) - Playwright E2E guide
+- 📊 [Testing Summary](docs/testing-summary.md) - Test coverage report
 
 ---
 
