@@ -44,6 +44,10 @@ export class OpenAIService {
         messages: messages,
         max_tokens: API_CONFIG.maxTokens,
         temperature: API_CONFIG.temperature,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.0,
+        top_p: 1.0,
+        reasoning_effort: 'medium',
       });
       
       if (!this.validateResponse(response)) {
@@ -88,6 +92,10 @@ export class OpenAIService {
         max_tokens: API_CONFIG.maxTokens,
         temperature: API_CONFIG.temperature,
         stream: true,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.0,
+        top_p: 1.0,
+        reasoning_effort: 'medium',
       });
       
       for await (const chunk of stream) {
