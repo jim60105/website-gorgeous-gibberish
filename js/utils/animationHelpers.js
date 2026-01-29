@@ -138,7 +138,7 @@ export class PausableAnimation {
   constructor() {
     this.isPaused = false;
     this.pendingResolvers = [];
-    this.abortController = null;
+    this.activeDelays = new Set();
   }
   
   /**
@@ -175,7 +175,11 @@ export class PausableAnimation {
    * Abort all ongoing animations
    */
   abort() {
-    this.abortController?.abort();
+    // Abort all active delays
+    this.activeDelays.forEach(controller => controller.abort());
+    this.activeDelays.clear();
+    
+    // Resolve all pending waiters
     this.pendingResolvers.forEach(resolve => resolve());
     this.pendingResolvers = [];
   }
@@ -189,12 +193,18 @@ export class PausableAnimation {
     await this.waitIfPaused();
     
     return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(resolve, ms);
+      const abortController = new AbortController();
+      this.activeDelays.add(abortController);
+      
+      const timeoutId = setTimeout(() => {
+        this.activeDelays.delete(abortController);
+        resolve();
+      }, ms);
       
       // Allow abort to cancel the delay
-      this.abortController = new AbortController();
-      this.abortController.signal.addEventListener('abort', () => {
+      abortController.signal.addEventListener('abort', () => {
         clearTimeout(timeoutId);
+        this.activeDelays.delete(abortController);
         resolve();
       });
     });

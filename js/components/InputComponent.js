@@ -234,13 +234,22 @@ export class InputComponent {
     errorElement.classList.remove('opacity-0');
     errorElement.classList.add('opacity-100', 'error-message');
     
+    // Remove existing shake animation if present
+    this.inputElement.classList.remove('error-shake');
+    
+    // Force reflow to restart animation
+    void this.inputElement.offsetHeight;
+    
     // Add shake animation to input
     this.inputElement.classList.add('error-shake', 'error-border');
     
-    // Remove shake animation after it completes
-    this.inputElement.addEventListener('animationend', () => {
-      this.inputElement.classList.remove('error-shake');
-    }, { once: true });
+    // Remove shake animation after it completes (only if still present)
+    const handleAnimationEnd = () => {
+      if (this.inputElement.classList.contains('error-shake')) {
+        this.inputElement.classList.remove('error-shake');
+      }
+    };
+    this.inputElement.addEventListener('animationend', handleAnimationEnd, { once: true });
     
     // Auto-hide error after 3 seconds
     setTimeout(() => this.hideError(), 3000);
@@ -392,14 +401,23 @@ export class InputComponent {
     errorElement.classList.remove('opacity-0');
     errorElement.classList.add('opacity-100', 'error-message');
     
-    // Add shake animation to input
     if (this.inputElementChat) {
+      // Remove existing shake animation if present
+      this.inputElementChat.classList.remove('error-shake');
+      
+      // Force reflow to restart animation
+      void this.inputElementChat.offsetHeight;
+      
+      // Add shake animation to input
       this.inputElementChat.classList.add('error-shake', 'error-border');
       
-      // Remove shake animation after it completes
-      this.inputElementChat.addEventListener('animationend', () => {
-        this.inputElementChat.classList.remove('error-shake');
-      }, { once: true });
+      // Remove shake animation after it completes (only if still present)
+      const handleAnimationEnd = () => {
+        if (this.inputElementChat.classList.contains('error-shake')) {
+          this.inputElementChat.classList.remove('error-shake');
+        }
+      };
+      this.inputElementChat.addEventListener('animationend', handleAnimationEnd, { once: true });
     }
     
     // Auto-hide error after 3 seconds

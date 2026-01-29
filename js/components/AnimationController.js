@@ -382,7 +382,7 @@ export class AnimationController {
     // Perform update
     await updateFn();
     
-    // Calculate and apply inverse transforms
+    // Calculate and apply inverse transforms (batched)
     children.forEach(({ el, rect: oldRect }) => {
       if (!el.getBoundingClientRect) return;
       
@@ -394,11 +394,13 @@ export class AnimationController {
       
       el.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
       el.style.transformOrigin = 'top left';
-      
-      // Force reflow
-      el.offsetHeight;
-      
-      // Animate to final state
+    });
+    
+    // Force single reflow for all elements
+    container.offsetHeight;
+    
+    // Animate to final state (batched)
+    children.forEach(({ el }) => {
       el.style.transition = 'transform 300ms ease-out';
       el.style.transform = '';
     });
@@ -429,7 +431,7 @@ export class AnimationController {
   demoteFromGPU(element) {
     if (!element) return;
     element.style.willChange = 'auto';
-    element.style.transform = '';
+    // Don't clear transform as it may be used by other animations
   }
   
   /**
@@ -439,11 +441,6 @@ export class AnimationController {
    */
   async batchAnimate(animations) {
     if (!animations || animations.length === 0) return;
-    
-    // Read phase: collect all initial states
-    const states = animations.map(({ element }) => ({
-      rect: element?.getBoundingClientRect(),
-    }));
     
     // Write phase: start all animations
     requestAnimationFrame(() => {
