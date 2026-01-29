@@ -184,31 +184,25 @@ export class ChatManager {
   updateConversationDots() {
     const elements = [this.conversationDotsElement, this.conversationDotsChatElement].filter(Boolean);
     
-    const fragment = document.createDocumentFragment();
-    
-    for (let i = 0; i < this.maxMessages; i++) {
-      const dot = document.createElement('span');
-      if (i < this.messageCount) {
-        // Used conversation slot - filled circle
-        dot.className = 'w-2 h-2 rounded-full bg-white';
-        dot.innerHTML = '●';
-        dot.classList.add('text-white');
-      } else {
-        // Remaining slot - empty circle
-        dot.className = 'w-2 h-2 rounded-full bg-text-muted/30';
-        dot.innerHTML = '○';
-        dot.classList.add('text-text-muted');
+    for (const element of elements) {
+      if (!element) continue;
+      
+      // Clear existing dots
+      element.innerHTML = '';
+      
+      // Create dots
+      for (let i = 0; i < this.maxMessages; i++) {
+        const dot = document.createElement('span');
+        if (i < this.messageCount) {
+          // Used conversation slot - filled circle
+          dot.className = 'w-2 h-2 rounded-full bg-white';
+        } else {
+          // Remaining slot - empty circle
+          dot.className = 'w-2 h-2 rounded-full bg-text-muted/30';
+        }
+        element.appendChild(dot);
       }
-      fragment.appendChild(dot);
     }
-    
-    // Update all conversation dot elements
-    elements.forEach(element => {
-      if (element) {
-        element.innerHTML = '';
-        element.appendChild(fragment.cloneNode(true));
-      }
-    });
   }
   
   /**

@@ -47,7 +47,7 @@
   /* Streaming cursor for typewriter effect */
   .streaming-cursor::after {
     content: '▊';
-    @apply animate-blink text-white ml-1;
+    @apply text-white ml-1 animate-blink;
   }
   
   /* Button hover effects */
@@ -84,11 +84,11 @@
   
   /* Safe area handling for notched devices */
   .safe-area-top {
-    padding-top: env(safe-area-inset-top);
+    padding-top: max(0.75rem, env(safe-area-inset-top));
   }
   
   .safe-area-bottom {
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
 
@@ -115,53 +115,5 @@
   /* Prevent zoom on input focus (iOS) */
   input[type="text"] {
     font-size: 16px;
-  }
-  
-  .hero-title {
-    @apply text-5xl;
-  }
-  
-  .hero-subtitle {
-    @apply text-sm px-4;
-  }
-  
-  #ai-response {
-    @apply text-lg leading-relaxed;
-  }
-}
-
-/* Tablet styles */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .hero-title {
-    @apply text-8xl;
-  }
-  
-  #ai-response {
-    @apply text-xl leading-relaxed;
-  }
-  
-  #input-container {
-    @apply px-6;
-  }
-}
-
-/* Desktop styles */
-@media (min-width: 1024px) {
-  .hero-title {
-    @apply text-9xl;
-  }
-  
-  #ai-response {
-    @apply text-2xl leading-loose;
-  }
-  
-  #input-container {
-    @apply max-w-2xl;
-  }
-}
-
-@media (min-width: 1280px) {
-  .container {
-    @apply max-w-4xl;
   }
 }

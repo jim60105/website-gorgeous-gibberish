@@ -43,8 +43,8 @@ module.exports = {
       },
       keyframes: {
         blink: {
-          '0%, 50%': { borderColor: '#ffffff' },
-          '51%, 100%': { borderColor: 'transparent' },
+          '0%, 50%': { opacity: '1' },
+          '51%, 100%': { opacity: '0' },
         },
         'fade-in': {
           '0%': { opacity: '0' },
