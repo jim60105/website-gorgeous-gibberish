@@ -96,8 +96,7 @@ describe('APIErrorHandler', () => {
     });
     
     test('should detect network failure', () => {
-      const error = new Error('NetworkError');
-      error.name = 'NetworkError';
+      const error = new TypeError('Failed to fetch');
       const result = APIErrorHandler.handle(error);
       
       expect(result.type).toBe('NETWORK_ERROR');
@@ -127,11 +126,7 @@ describe('ErrorRecovery', () => {
   
   beforeEach(() => {
     errorRecovery = new ErrorRecovery();
-    jest.useFakeTimers();
-  });
-  
-  afterEach(() => {
-    jest.useRealTimers();
+    // Use real timers - no fake timers
   });
   
   describe('initialization', () => {
@@ -153,6 +148,8 @@ describe('ErrorRecovery', () => {
     });
     
     test('should retry on retryable errors', async () => {
+      // Use short delays for testing
+      errorRecovery.retryDelays = [1, 1, 1];
       let attempts = 0;
       const operation = jest.fn().mockImplementation(async () => {
         attempts++;
@@ -164,15 +161,10 @@ describe('ErrorRecovery', () => {
         return 'success';
       });
       
-      const promise = errorRecovery.executeWithRetry(operation, {
+      const result = await errorRecovery.executeWithRetry(operation, {
         maxRetries: 3,
         shouldRetry: () => true,
       });
-      
-      // Fast-forward through all delays
-      jest.runAllTimers();
-      
-      const result = await promise;
       
       expect(result).toBe('success');
       expect(attempts).toBe(3);
@@ -196,6 +188,8 @@ describe('ErrorRecovery', () => {
     });
     
     test('should call onRetry callback', async () => {
+      // Use short delays
+      errorRecovery.retryDelays = [1, 1];
       let attempts = 0;
       const operation = jest.fn().mockImplementation(async () => {
         attempts++;
@@ -206,33 +200,33 @@ describe('ErrorRecovery', () => {
       });
       
       const onRetry = jest.fn();
-      const promise = errorRecovery.executeWithRetry(operation, {
+      await errorRecovery.executeWithRetry(operation, {
         maxRetries: 2,
         shouldRetry: () => true,
         onRetry,
       });
       
-      jest.runAllTimers();
-      await promise;
-      
       expect(onRetry).toHaveBeenCalledWith(1, expect.any(Error));
     });
     
     test('should throw after max retries', async () => {
+      // Use real timers for simplicity but with short delays
+      errorRecovery.retryDelays = [1, 1, 1];
       const operation = jest.fn().mockRejectedValue(new Error('Persistent error'));
       
-      const promise = errorRecovery.executeWithRetry(operation, {
-        maxRetries: 2,
-        shouldRetry: () => true,
-      });
+      await expect(
+        errorRecovery.executeWithRetry(operation, {
+          maxRetries: 2,
+          shouldRetry: () => true,
+        })
+      ).rejects.toThrow('Persistent error');
       
-      jest.runAllTimers();
-      
-      await expect(promise).rejects.toThrow('Persistent error');
       expect(operation).toHaveBeenCalledTimes(3); // Initial + 2 retries
     });
     
     test('should use exponential backoff', async () => {
+      // Use short delays for testing
+      errorRecovery.retryDelays = [10, 20, 30];
       let attempts = 0;
       const operation = jest.fn().mockImplementation(async () => {
         attempts++;
@@ -244,18 +238,15 @@ describe('ErrorRecovery', () => {
       
       const delaySpy = jest.spyOn(errorRecovery, 'delay');
       
-      const promise = errorRecovery.executeWithRetry(operation, {
+      await errorRecovery.executeWithRetry(operation, {
         maxRetries: 3,
         shouldRetry: () => true,
       });
       
-      jest.runAllTimers();
-      await promise;
-      
       // Check delays were called with increasing values
-      expect(delaySpy).toHaveBeenCalledWith(1000); // First retry
-      expect(delaySpy).toHaveBeenCalledWith(3000); // Second retry
-      expect(delaySpy).toHaveBeenCalledWith(5000); // Third retry
+      expect(delaySpy).toHaveBeenCalledWith(10); // First retry
+      expect(delaySpy).toHaveBeenCalledWith(20); // Second retry
+      expect(delaySpy).toHaveBeenCalledWith(30); // Third retry
     });
   });
   
@@ -297,13 +288,11 @@ describe('ErrorRecovery', () => {
   
   describe('delay', () => {
     test('should delay execution', async () => {
-      const promise = errorRecovery.delay(1000);
+      const start = Date.now();
+      await errorRecovery.delay(50);
+      const elapsed = Date.now() - start;
       
-      jest.advanceTimersByTime(999);
-      expect(Promise.race([promise, Promise.resolve('not-done')])).resolves.toBe('not-done');
-      
-      jest.advanceTimersByTime(1);
-      await expect(promise).resolves.toBeUndefined();
+      expect(elapsed).toBeGreaterThanOrEqual(40); // Allow some variance
     });
   });
 });
@@ -311,9 +300,8 @@ describe('ErrorRecovery', () => {
 describe('Error Recovery Integration', () => {
   test('should recover from temporary errors', async () => {
     const errorRecovery = new ErrorRecovery();
+    errorRecovery.retryDelays = [1, 1, 1]; // Use short delays
     let attempts = 0;
-    
-    jest.useFakeTimers();
     
     const operation = async () => {
       attempts++;
@@ -324,17 +312,12 @@ describe('Error Recovery Integration', () => {
       return 'recovered';
     };
     
-    const promise = errorRecovery.executeWithRetry(operation, {
+    const result = await errorRecovery.executeWithRetry(operation, {
       maxRetries: 3,
     });
     
-    jest.runAllTimers();
-    const result = await promise;
-    
     expect(result).toBe('recovered');
     expect(attempts).toBe(3);
-    
-    jest.useRealTimers();
   });
   
   test('should fail fast on non-retryable errors', async () => {

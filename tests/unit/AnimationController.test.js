@@ -10,6 +10,18 @@ describe('AnimationController', () => {
   let animationController;
   
   beforeEach(() => {
+    // Mock window.matchMedia for reduced motion detection
+    window.matchMedia = jest.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    }));
+    
     document.body.innerHTML = `
       <div id="app" class="">
         <div class="hero-container">

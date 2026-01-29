@@ -33,9 +33,13 @@ export default {
     },
   },
   
-  // Module name mapper for CSS/assets
+  // Module name mapper for CSS/assets and mocks
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': '<rootDir>/tests/__mocks__/styleMock.js',
+    '^openai$': '<rootDir>/tests/__mocks__/openai.js',
+    '^../../js/config/api.js$': '<rootDir>/tests/__mocks__/api.js',
+    '^../../js/services/APIErrorHandler.js$': '<rootDir>/tests/__mocks__/APIErrorHandler.js',
+    '^../../js/services/ErrorLogger.js$': '<rootDir>/tests/__mocks__/ErrorLogger.js',
   },
   
   // Transform ES6 modules

@@ -3,6 +3,8 @@
  * All tests should run without real API calls
  */
 
+import { jest } from '@jest/globals';
+
 // Mock streaming chunk generator
 async function* mockStreamGenerator(content) {
   const words = content.split(' ');
@@ -82,5 +84,5 @@ class MockAPIError extends Error {
 // Mock error classes
 MockOpenAI.APIError = MockAPIError;
 
-// Export mock
+// Export mock as default
 export default MockOpenAI;

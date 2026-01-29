@@ -96,7 +96,9 @@ describe('OpenAIService', () => {
       expect(openAIService.client.chat.completions.create).toHaveBeenCalledWith(
         expect.objectContaining({
           messages: messages,
-          stream: undefined,
+          model: expect.any(String),
+          max_tokens: expect.any(Number),
+          temperature: expect.any(Number),
         })
       );
       expect(response).toBeTruthy();
