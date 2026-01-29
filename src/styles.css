@@ -36,11 +36,54 @@
   .streaming-cursor {
     @apply border-r-2 border-white animate-blink;
   }
+  
+  /* Button hover effects */
+  .btn-interactive {
+    @apply transform transition-all duration-200;
+  }
+  
+  .btn-interactive:hover {
+    @apply -translate-y-0.5 shadow-lg shadow-white/10;
+  }
+  
+  .btn-interactive:active {
+    @apply translate-y-0 shadow-md;
+  }
+  
+  /* Input focus effects */
+  .input-interactive {
+    @apply transition-all duration-200;
+  }
+  
+  .input-interactive:focus {
+    @apply border-white shadow-lg shadow-white/5;
+  }
+  
+  /* Pulse animation for loading states */
+  .loading-pulse {
+    @apply animate-pulse;
+  }
+  
+  /* Enable hardware acceleration for animated elements */
+  .hardware-accelerated {
+    @apply transform-gpu;
+  }
 }
 
 @layer utilities {
   /* Typing animation helper */
   .text-streaming {
     @apply overflow-hidden whitespace-pre-wrap;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

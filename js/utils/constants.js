@@ -16,6 +16,7 @@ export const SELECTORS = {
   INPUT: '#user-input',
   SEND_BUTTON: '#send-button',
   CHAR_COUNT: '#char-count',
+  INPUT_ERROR: '#input-error',
   CONVERSATION_DOTS: '#conversation-dots',
   AI_RESPONSE: '#ai-response',
   TOPIC_DISPLAY: '#topic-display',
