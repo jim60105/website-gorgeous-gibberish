@@ -35,13 +35,9 @@ export class ChatManager {
     this.aiResponseElement = document.querySelector(SELECTORS.AI_RESPONSE);
     this.topicDisplayElement = document.querySelector(SELECTORS.TOPIC_DISPLAY);
     
-    // Initialize OpenAI service with a placeholder key
-    // In production, this should be handled securely
-    try {
-      this.openAIService = new OpenAIService('placeholder-key');
-    } catch (error) {
-      console.warn('OpenAI service not initialized:', error.message);
-    }
+    // Note: OpenAI service initialization is optional
+    // For now, we use mock responses
+    // this.openAIService = new OpenAIService('api-key');
     
     // Set initial state
     this.updateConversationDots();
