@@ -32,6 +32,7 @@ export class ChatManager {
    */
   init() {
     this.conversationDotsElement = document.querySelector(SELECTORS.CONVERSATION_DOTS);
+    this.conversationDotsChatElement = document.querySelector('#conversation-dots-chat');
     this.aiResponseElement = document.querySelector(SELECTORS.AI_RESPONSE);
     this.topicDisplayElement = document.querySelector(SELECTORS.TOPIC_DISPLAY);
     
@@ -181,21 +182,33 @@ export class ChatManager {
    * Shows filled dots for used messages, empty dots for remaining
    */
   updateConversationDots() {
-    if (!this.conversationDotsElement) return;
+    const elements = [this.conversationDotsElement, this.conversationDotsChatElement].filter(Boolean);
     
-    const dots = [];
+    const fragment = document.createDocumentFragment();
     
     for (let i = 0; i < this.maxMessages; i++) {
+      const dot = document.createElement('span');
       if (i < this.messageCount) {
         // Used conversation slot - filled circle
-        dots.push('<span class="text-white">●</span>');
+        dot.className = 'w-2 h-2 rounded-full bg-white';
+        dot.innerHTML = '●';
+        dot.classList.add('text-white');
       } else {
         // Remaining slot - empty circle
-        dots.push('<span class="text-text-muted">○</span>');
+        dot.className = 'w-2 h-2 rounded-full bg-text-muted/30';
+        dot.innerHTML = '○';
+        dot.classList.add('text-text-muted');
       }
+      fragment.appendChild(dot);
     }
     
-    this.conversationDotsElement.innerHTML = dots.join(' ');
+    // Update all conversation dot elements
+    elements.forEach(element => {
+      if (element) {
+        element.innerHTML = '';
+        element.appendChild(fragment.cloneNode(true));
+      }
+    });
   }
   
   /**
@@ -238,7 +251,15 @@ export class ChatManager {
   setupResetButton() {
     const resetButton = document.querySelector(SELECTORS.RESET_BUTTON);
     if (resetButton) {
-      resetButton.addEventListener('click', () => this.resetConversation());
+      resetButton.addEventListener('click', async () => {
+        // Confirm if conversation has started
+        if (this.messageCount > 0) {
+          const confirmed = confirm('確定要重新開始嗎？目前的對話將會清除。');
+          if (!confirmed) return;
+        }
+        
+        await this.resetConversation();
+      });
     }
   }
   

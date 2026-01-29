@@ -24,9 +24,15 @@ export class InputComponent {
    * Initialize the component
    */
   init() {
+    // Initial state elements
     this.inputElement = document.querySelector(SELECTORS.INPUT);
     this.sendButton = document.querySelector(SELECTORS.SEND_BUTTON);
     this.charCountElement = document.querySelector(SELECTORS.CHAR_COUNT);
+    
+    // Chat state elements
+    this.inputChatElement = document.querySelector('#user-input-chat');
+    this.sendChatButton = document.querySelector('#send-button-chat');
+    this.charCountChatElement = document.querySelector('#char-count-chat');
     
     if (!this.inputElement || !this.sendButton || !this.charCountElement) {
       console.error('InputComponent: Required DOM elements not found');
@@ -41,14 +47,20 @@ export class InputComponent {
    * Set up event listeners
    */
   setupEventListeners() {
-    // Input event for character counting
+    // Initial state input listeners
     this.inputElement.addEventListener('input', () => this.handleInput());
-    
-    // Click event for send button
     this.sendButton.addEventListener('click', () => this.handleSubmit());
-    
-    // Keydown event for Enter key
     this.inputElement.addEventListener('keydown', (e) => this.handleKeydown(e));
+    
+    // Chat state input listeners (if elements exist)
+    if (this.inputChatElement) {
+      this.inputChatElement.addEventListener('input', () => this.handleInputChat());
+      this.inputChatElement.addEventListener('keydown', (e) => this.handleKeydownChat(e));
+    }
+    
+    if (this.sendChatButton) {
+      this.sendChatButton.addEventListener('click', () => this.handleSubmitChat());
+    }
   }
   
   /**
@@ -249,6 +261,161 @@ export class InputComponent {
     } else {
       this.sendButton.disabled = false;
       this.sendButton.innerHTML = '→';
+    }
+  }
+  
+  /**
+   * Handle input changes (chat state)
+   */
+  handleInputChat() {
+    this.updateCharCountChat();
+    this.enforceMaxLengthChat();
+    
+    // Clear error styling when user starts typing
+    if (this.inputChatElement) {
+      this.inputChatElement.classList.remove('border-red-400');
+    }
+  }
+  
+  /**
+   * Enforce maximum input length (chat state)
+   */
+  enforceMaxLengthChat() {
+    if (!this.inputChatElement) return;
+    
+    const currentValue = this.inputChatElement.value;
+    
+    if (currentValue.length > this.maxLength) {
+      this.inputChatElement.value = currentValue.slice(0, this.maxLength);
+    }
+  }
+  
+  /**
+   * Update the character count display (chat state)
+   */
+  updateCharCountChat() {
+    if (!this.inputChatElement || !this.charCountChatElement) return;
+    
+    const currentLength = this.inputChatElement.value.length;
+    
+    // Update display text
+    this.charCountChatElement.textContent = `${currentLength}/${this.maxLength}`;
+    
+    // Remove all color classes first
+    this.charCountChatElement.classList.remove(
+      'text-text-muted',
+      'text-yellow-400',
+      'text-red-400'
+    );
+    
+    // Apply color based on character count
+    const usageRatio = currentLength / this.maxLength;
+    
+    if (usageRatio >= 1) {
+      this.charCountChatElement.classList.add('text-red-400');
+    } else if (usageRatio >= 0.8) {
+      this.charCountChatElement.classList.add('text-yellow-400');
+    } else {
+      this.charCountChatElement.classList.add('text-text-muted');
+    }
+  }
+  
+  /**
+   * Handle keydown events (chat state)
+   */
+  handleKeydownChat(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      this.handleSubmitChat();
+    }
+  }
+  
+  /**
+   * Handle form submission (chat state)
+   */
+  async handleSubmitChat() {
+    if (!this.inputChatElement) return;
+    
+    // Prevent double submission
+    if (this.isSubmitting) return;
+    
+    const inputValue = this.inputChatElement.value.trim();
+    
+    // Validate input
+    const validation = this.validateInput(inputValue);
+    if (!validation.isValid) {
+      this.showErrorChat(validation.message);
+      return;
+    }
+    
+    // Set submitting state
+    this.isSubmitting = true;
+    this.setLoadingStateChat(true);
+    
+    try {
+      // Send message through chat manager
+      await this.chatManager.sendMessage(inputValue);
+      
+      // Clear input on success
+      this.inputChatElement.value = '';
+      this.updateCharCountChat();
+      this.hideErrorChat();
+      
+    } catch (error) {
+      this.showErrorChat(error.message || '發送失敗，請重試');
+    } finally {
+      this.isSubmitting = false;
+      this.setLoadingStateChat(false);
+    }
+  }
+  
+  /**
+   * Show error message to user (chat state)
+   */
+  showErrorChat(message) {
+    const errorElement = document.querySelector('#input-error-chat');
+    if (!errorElement) return;
+    
+    errorElement.textContent = message;
+    errorElement.classList.remove('opacity-0');
+    errorElement.classList.add('opacity-100');
+    
+    // Auto-hide error after 3 seconds
+    setTimeout(() => this.hideErrorChat(), 3000);
+    
+    // Add visual feedback to input
+    if (this.inputChatElement) {
+      this.inputChatElement.classList.add('border-red-400');
+    }
+  }
+  
+  /**
+   * Hide error message (chat state)
+   */
+  hideErrorChat() {
+    const errorElement = document.querySelector('#input-error-chat');
+    if (!errorElement) return;
+    
+    errorElement.classList.remove('opacity-100');
+    errorElement.classList.add('opacity-0');
+    
+    if (this.inputChatElement) {
+      this.inputChatElement.classList.remove('border-red-400');
+    }
+  }
+  
+  /**
+   * Set loading state on send button (chat state)
+   */
+  setLoadingStateChat(isLoading) {
+    if (!this.sendChatButton) return;
+    
+    if (isLoading) {
+      this.sendChatButton.disabled = true;
+      this.sendChatButton.innerHTML = '<span class="animate-pulse">...</span>';
+    } else {
+      this.sendChatButton.disabled = false;
+      this.sendChatButton.innerHTML = '→';
     }
   }
 }

@@ -3,81 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="絢 - AI 聊天機器人網站">
+    <meta name="description" content="絢 - AI 聊天機器人，視覺簡約與文字絢爛的反差美學">
     <title>絢</title>
     <!-- Tailwind CSS -->
     <link rel="stylesheet" href="dist/styles.css">
 </head>
-<body class="bg-gray-950 text-white min-h-screen">
+<body class="bg-bg-primary text-text-primary min-h-screen font-primary">
     <!-- Main content container -->
-    <main id="app" class="container mx-auto px-4 min-h-screen flex flex-col justify-center items-center">
-        <!-- Hero Title (Initial State) -->
-        <div class="hero-title text-center mb-8">
-            <h1 class="text-6xl font-bold mb-4">絢</h1>
-            <p class="text-text-secondary text-lg">華麗的廢話產生器</p>
+    <main id="app" class="min-h-screen flex flex-col items-center justify-center px-4">
+        <!-- Hero Section (Initial State) -->
+        <div class="hero-container text-center mb-8">
+            <h1 class="hero-title text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight mb-4">
+                <span class="text-white hover:text-gray-200 transition-colors duration-300">
+                    絢
+                </span>
+            </h1>
+            <p class="hero-subtitle text-text-muted text-sm md:text-base">
+                輸入簡短詞語，獲得絢爛回應
+            </p>
         </div>
 
-        <!-- Chat Header (Hidden initially) -->
-        <div class="chat-header hidden w-full max-w-xl mb-4">
-            <div class="flex justify-between items-center">
-                <!-- Conversation dots indicator -->
-                <div id="conversation-dots" class="text-lg tracking-wider" aria-label="對話次數">
-                    ○ ○ ○ ○ ○
-                </div>
-                <!-- Reset button -->
+        <!-- Usage Hint (Initial State) -->
+        <div class="usage-hint text-center mt-8">
+            <p class="text-text-muted text-sm">
+                輸入您的想法，按 Enter 或點擊傳送
+            </p>
+            <p class="text-text-muted/60 text-xs mt-2">
+                每次對話限 5 回合 · 每則訊息限 20 字
+            </p>
+        </div>
+    </main>
+    
+    <!-- Chat State Container (Initially hidden) -->
+    <div id="chat-container" class="min-h-screen flex flex-col hidden">
+        <!-- Chat Header (Fixed) -->
+        <header class="chat-header fixed top-0 left-0 right-0 bg-bg-primary/95 backdrop-blur-sm border-b border-border-color z-10 safe-area-top">
+            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+                <h1 class="text-xl font-bold text-white">絢</h1>
                 <button 
                     id="reset-button"
-                    class="text-text-muted hover:text-white transition-colors duration-200 text-sm"
+                    class="flex items-center gap-2 text-text-muted hover:text-white 
+                           text-sm px-3 py-1.5 rounded-lg
+                           hover:bg-white/5
+                           transition-all duration-200"
                     aria-label="重新開始"
                 >
-                    重新開始
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>重新開始</span>
                 </button>
             </div>
-            <!-- Topic display -->
-            <div class="mt-4">
-                <span class="text-text-muted text-sm">主題：</span>
-                <span id="topic-display" class="text-text-secondary transition-opacity duration-300 opacity-0"></span>
+        </header>
+        
+        <!-- Main Content Area (Scrollable) -->
+        <main class="flex-1 pt-20 pb-32 px-4 overflow-y-auto">
+            <div class="container mx-auto max-w-2xl">
+                <!-- Topic Display Section -->
+                <div id="topic-section" class="mb-6 pb-4 border-b border-border-color/50 hidden">
+                    <div class="flex items-center gap-2">
+                        <span class="text-text-muted text-sm">主題</span>
+                        <span class="text-text-muted">·</span>
+                        <span id="topic-display" class="text-text-secondary text-sm font-medium"></span>
+                    </div>
+                </div>
+                
+                <!-- AI Response Container -->
+                <div id="ai-response-container" class="prose prose-invert max-w-none hidden">
+                    <p 
+                        id="ai-response" 
+                        class="text-xl md:text-2xl lg:text-ai-response 
+                               leading-relaxed md:leading-loose 
+                               text-white
+                               text-streaming"
+                    ></p>
+                </div>
             </div>
-        </div>
+        </main>
+        
+        <!-- Fixed Bottom Input (Chat Mode) -->
+        <footer class="fixed bottom-0 left-0 right-0 bg-bg-primary/95 backdrop-blur-sm border-t border-border-color z-10 p-4 safe-area-bottom">
+            <div class="container mx-auto max-w-xl">
+                <!-- Conversation Dots and Char Count -->
+                <div class="flex items-center justify-between mb-2">
+                    <div id="conversation-dots-chat" class="flex items-center gap-1.5 text-base" aria-label="對話進度">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <span id="char-count-chat" class="text-meta text-text-muted">0/20</span>
+                </div>
+                
+                <!-- Input Row (Chat Mode) -->
+                <div class="flex items-center gap-3">
+                    <div class="relative flex-1">
+                        <input 
+                            type="text" 
+                            id="user-input-chat"
+                            class="w-full bg-bg-secondary border border-border-color rounded-xl 
+                                   px-4 py-3.5 text-text-primary text-base
+                                   placeholder-text-muted
+                                   focus:outline-none focus:border-white focus:ring-2 focus:ring-white/10
+                                   transition-all duration-200
+                                   input-interactive"
+                            placeholder="繼續對話..."
+                            maxlength="20"
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                    </div>
+                    
+                    <button 
+                        id="send-button-chat"
+                        class="flex-shrink-0 bg-white text-bg-primary 
+                               w-12 h-12 rounded-xl
+                               flex items-center justify-center
+                               text-xl font-bold
+                               hover:bg-gray-100 active:bg-gray-200
+                               disabled:opacity-50 disabled:cursor-not-allowed
+                               transition-all duration-200
+                               btn-interactive"
+                        aria-label="發送訊息"
+                    >
+                        →
+                    </button>
+                </div>
+                
+                <!-- Input Meta Row (Chat Mode) -->
+                <div class="flex justify-between items-center mt-2 px-1">
+                    <span id="input-error-chat" class="text-red-400 text-sm opacity-0 transition-opacity duration-200" aria-live="polite"></span>
+                </div>
+            </div>
+        </footer>
+    </div>
 
-        <!-- AI Response Container (Hidden initially) -->
-        <div id="ai-response-container" class="hidden w-full max-w-xl mb-8 flex-1 overflow-y-auto">
-            <div id="ai-response" class="text-ai-response leading-relaxed whitespace-pre-wrap"></div>
-        </div>
-
-        <!-- Input container -->
-        <div id="input-container" class="w-full max-w-xl mx-auto">
-            <div class="relative flex items-center gap-2">
-                <input 
-                    type="text" 
-                    id="user-input"
-                    class="flex-1 bg-bg-secondary border border-border-color rounded-lg px-4 py-3 
-                           text-text-primary placeholder-text-muted
-                           focus:outline-none focus:border-white focus:ring-1 focus:ring-white/10
-                           transition-all duration-200"
-                    placeholder="輸入訊息..."
-                    maxlength="20"
-                    autocomplete="off"
-                >
+        <!-- Input Section (Initial State) -->
+        <div id="input-container" class="w-full max-w-xl transition-all duration-600 ease-out-expo">
+            <!-- Input Row -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1">
+                    <input 
+                        type="text" 
+                        id="user-input"
+                        class="w-full bg-bg-secondary border border-border-color rounded-xl 
+                               px-4 py-3.5 text-text-primary text-lg
+                               placeholder-text-muted
+                               focus:outline-none focus:border-white focus:ring-2 focus:ring-white/10
+                               transition-all duration-200
+                               input-interactive"
+                        placeholder=""
+                        maxlength="20"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                </div>
+                
                 <button 
                     id="send-button"
-                    class="bg-white text-bg-primary px-4 py-3 rounded-lg font-medium
-                           hover:bg-gray-200 active:bg-gray-300
+                    class="flex-shrink-0 bg-white text-bg-primary 
+                           w-12 h-12 rounded-xl
+                           flex items-center justify-center
+                           text-xl font-bold
+                           hover:bg-gray-100 active:bg-gray-200
                            disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-all duration-200"
+                           transition-all duration-200
+                           btn-interactive"
                     aria-label="發送訊息"
                 >
                     →
                 </button>
             </div>
             
-            <!-- Character counter and error message -->
-            <div class="flex justify-between items-center mt-2">
-                <div id="input-error" class="text-red-400 text-sm opacity-0 transition-opacity duration-200" aria-live="polite"></div>
-                <span id="char-count" class="text-meta text-text-muted ml-auto">0/20</span>
+            <!-- Input Meta Row -->
+            <div class="flex justify-between items-center mt-2 px-1">
+                <span id="input-error" class="text-red-400 text-sm opacity-0 transition-opacity duration-200" aria-live="polite"></span>
+                <span id="char-count" class="text-meta text-text-muted">0/20</span>
             </div>
         </div>
-    </main>
     
     <!-- JavaScript modules -->
     <script type="module" src="js/main.js"></script>
