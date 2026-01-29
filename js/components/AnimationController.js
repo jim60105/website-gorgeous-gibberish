@@ -17,9 +17,12 @@ export class AnimationController {
    */
   init() {
     // Cache DOM elements
-    this.heroTitle = document.querySelector('.hero-title');
+    this.heroContainer = document.querySelector('.hero-container');
+    this.usageHint = document.querySelector('.usage-hint');
+    this.appContainer = document.querySelector('#app');
+    this.chatContainer = document.querySelector('#chat-container');
     this.inputContainer = document.querySelector('#input-container');
-    this.chatHeader = document.querySelector('.chat-header');
+    this.topicSection = document.querySelector('#topic-section');
     this.aiResponseContainer = document.querySelector('#ai-response-container');
   }
   
@@ -32,11 +35,21 @@ export class AnimationController {
     this.isAnimating = true;
     
     try {
-      // Step 1: Fade out hero title
-      await this.fadeOut(this.heroTitle, ANIMATION_DURATION.FADE_OUT);
+      // Step 1: Fade out initial state elements
+      await Promise.all([
+        this.fadeOut(this.heroContainer, ANIMATION_DURATION.FADE_OUT),
+        this.fadeOut(this.usageHint, ANIMATION_DURATION.FADE_OUT)
+      ]);
       
-      // Step 2: Show chat header and response area
-      await this.fadeIn(this.chatHeader, ANIMATION_DURATION.FADE_IN);
+      // Step 2: Hide app container and show chat container
+      this.appContainer.classList.add('hidden');
+      this.chatContainer.classList.remove('hidden');
+      
+      // Step 3: Show topic section and AI response container
+      this.topicSection.classList.remove('hidden');
+      await this.fadeIn(this.topicSection, ANIMATION_DURATION.FADE_IN);
+      
+      this.aiResponseContainer.classList.remove('hidden');
       await this.fadeIn(this.aiResponseContainer, ANIMATION_DURATION.FADE_IN);
       
       this.currentState = 'chat';
@@ -55,11 +68,20 @@ export class AnimationController {
     
     try {
       // Step 1: Fade out chat elements
-      await this.fadeOut(this.aiResponseContainer, ANIMATION_DURATION.FADE_OUT);
-      await this.fadeOut(this.chatHeader, ANIMATION_DURATION.FADE_OUT);
+      await Promise.all([
+        this.fadeOut(this.aiResponseContainer, ANIMATION_DURATION.FADE_OUT),
+        this.fadeOut(this.topicSection, ANIMATION_DURATION.FADE_OUT)
+      ]);
       
-      // Step 2: Show hero title
-      await this.fadeIn(this.heroTitle, ANIMATION_DURATION.FADE_IN);
+      // Step 2: Hide chat container and show app container
+      this.chatContainer.classList.add('hidden');
+      this.appContainer.classList.remove('hidden');
+      
+      // Step 3: Show initial state elements
+      await Promise.all([
+        this.fadeIn(this.heroContainer, ANIMATION_DURATION.FADE_IN),
+        this.fadeIn(this.usageHint, ANIMATION_DURATION.FADE_IN)
+      ]);
       
       this.currentState = 'initial';
     } finally {

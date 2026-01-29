@@ -238,7 +238,15 @@ export class ChatManager {
   setupResetButton() {
     const resetButton = document.querySelector(SELECTORS.RESET_BUTTON);
     if (resetButton) {
-      resetButton.addEventListener('click', () => this.resetConversation());
+      resetButton.addEventListener('click', async () => {
+        // Confirm if conversation has started
+        if (this.messageCount > 0) {
+          const confirmed = confirm('確定要重新開始嗎？目前的對話將會清除。');
+          if (!confirmed) return;
+        }
+        
+        await this.resetConversation();
+      });
     }
   }
   
