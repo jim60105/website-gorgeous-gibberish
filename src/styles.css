@@ -23,6 +23,18 @@
     @apply transition-all duration-600 ease-out-expo;
   }
   
+  /* Hero title styling */
+  .hero-title {
+    text-shadow: 0 0 60px rgba(255, 255, 255, 0.1);
+  }
+  
+  /* AI Response styling */
+  #ai-response {
+    @apply font-primary;
+    word-spacing: 0.05em;
+    letter-spacing: 0.02em;
+  }
+  
   /* Fade animations */
   .fade-in {
     @apply animate-fade-in;
@@ -33,8 +45,9 @@
   }
   
   /* Streaming text cursor */
-  .streaming-cursor {
-    @apply border-r-2 border-white animate-blink;
+  .streaming-cursor::after {
+    content: '▊';
+    @apply animate-blink text-white ml-1;
   }
   
   /* Button hover effects */
@@ -68,6 +81,15 @@
   .hardware-accelerated {
     @apply transform-gpu;
   }
+  
+  /* Safe area support for notched devices */
+  .safe-area-top {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
 }
 
 @layer utilities {
@@ -85,5 +107,62 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mobile styles (< 768px) */
+@media (max-width: 767px) {
+  .hero-title {
+    @apply text-5xl;
+  }
+  
+  .hero-subtitle {
+    @apply text-sm px-4;
+  }
+  
+  #ai-response {
+    @apply text-lg leading-relaxed;
+  }
+  
+  /* Prevent zoom on input focus (iOS) */
+  input[type="text"] {
+    font-size: 16px;
+  }
+}
+
+/* Tablet styles (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-title {
+    @apply text-8xl;
+  }
+  
+  #ai-response {
+    @apply text-xl leading-relaxed;
+  }
+  
+  #input-container {
+    @apply px-6;
+  }
+  
+  .chat-header .container {
+    @apply px-6;
+  }
+}
+
+/* Desktop styles (>= 1024px) */
+@media (min-width: 1024px) {
+  .hero-title {
+    @apply text-9xl;
+  }
+  
+  #ai-response {
+    @apply text-2xl leading-loose;
+  }
+}
+
+/* Large desktop styles (>= 1280px) */
+@media (min-width: 1280px) {
+  .container {
+    @apply max-w-4xl;
   }
 }

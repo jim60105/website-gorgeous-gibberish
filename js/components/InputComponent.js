@@ -24,9 +24,15 @@ export class InputComponent {
    * Initialize the component
    */
   init() {
+    // Initial state input
     this.inputElement = document.querySelector(SELECTORS.INPUT);
     this.sendButton = document.querySelector(SELECTORS.SEND_BUTTON);
     this.charCountElement = document.querySelector(SELECTORS.CHAR_COUNT);
+    
+    // Chat state input
+    this.inputElementChat = document.querySelector('#user-input-chat');
+    this.sendButtonChat = document.querySelector('#send-button-chat');
+    this.charCountElementChat = document.querySelector('#char-count-chat');
     
     if (!this.inputElement || !this.sendButton || !this.charCountElement) {
       console.error('InputComponent: Required DOM elements not found');
@@ -41,14 +47,17 @@ export class InputComponent {
    * Set up event listeners
    */
   setupEventListeners() {
-    // Input event for character counting
+    // Initial state input events
     this.inputElement.addEventListener('input', () => this.handleInput());
-    
-    // Click event for send button
     this.sendButton.addEventListener('click', () => this.handleSubmit());
-    
-    // Keydown event for Enter key
     this.inputElement.addEventListener('keydown', (e) => this.handleKeydown(e));
+    
+    // Chat state input events
+    if (this.inputElementChat && this.sendButtonChat) {
+      this.inputElementChat.addEventListener('input', () => this.handleInputChat());
+      this.sendButtonChat.addEventListener('click', () => this.handleSubmitChat());
+      this.inputElementChat.addEventListener('keydown', (e) => this.handleKeydownChat(e));
+    }
   }
   
   /**
@@ -63,6 +72,17 @@ export class InputComponent {
   }
   
   /**
+   * Handle chat input changes
+   */
+  handleInputChat() {
+    this.updateCharCountChat();
+    this.enforceMaxLengthChat();
+    
+    // Clear error styling when user starts typing
+    this.inputElementChat.classList.remove('border-red-400');
+  }
+  
+  /**
    * Enforce maximum input length
    * Truncates input if it exceeds the limit
    */
@@ -71,6 +91,17 @@ export class InputComponent {
     
     if (currentValue.length > this.maxLength) {
       this.inputElement.value = currentValue.slice(0, this.maxLength);
+    }
+  }
+  
+  /**
+   * Enforce maximum input length for chat input
+   */
+  enforceMaxLengthChat() {
+    const currentValue = this.inputElementChat.value;
+    
+    if (currentValue.length > this.maxLength) {
+      this.inputElementChat.value = currentValue.slice(0, this.maxLength);
     }
   }
   
@@ -131,6 +162,39 @@ export class InputComponent {
     } else {
       // Normal - muted
       this.charCountElement.classList.add('text-text-muted');
+    }
+  }
+  
+  /**
+   * Update the character count display for chat input
+   */
+  updateCharCountChat() {
+    if (!this.inputElementChat || !this.charCountElementChat) return;
+    
+    const currentLength = this.inputElementChat.value.length;
+    
+    // Update display text
+    this.charCountElementChat.textContent = `${currentLength}/${this.maxLength}`;
+    
+    // Remove all color classes first
+    this.charCountElementChat.classList.remove(
+      'text-text-muted',
+      'text-yellow-400',
+      'text-red-400'
+    );
+    
+    // Apply color based on character count
+    const usageRatio = currentLength / this.maxLength;
+    
+    if (usageRatio >= 1) {
+      // At limit - red
+      this.charCountElementChat.classList.add('text-red-400');
+    } else if (usageRatio >= 0.8) {
+      // Near limit (80%+) - yellow warning
+      this.charCountElementChat.classList.add('text-yellow-400');
+    } else {
+      // Normal - muted
+      this.charCountElementChat.classList.add('text-text-muted');
     }
   }
   
@@ -202,6 +266,17 @@ export class InputComponent {
   }
   
   /**
+   * Handle keydown events for chat input
+   * @param {KeyboardEvent} e - Keyboard event
+   */
+  handleKeydownChat(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      this.handleSubmitChat();
+    }
+  }
+  
+  /**
    * Handle form submission
    */
   async handleSubmit() {
@@ -219,36 +294,120 @@ export class InputComponent {
     
     // Set submitting state
     this.isSubmitting = true;
-    this.setLoadingState(true);
+    this.setLoadingState(true, false);
+    
+    try {
+      // Send message through chat manager
+      await this.chatManager.sendMessage(inputValue);
+      
+      // Clear input on success and sync to chat input
+      this.inputElement.value = '';
+      this.updateCharCount();
+      this.hideError();
+      
+      // Sync the chat input value
+      if (this.inputElementChat) {
+        this.inputElementChat.value = '';
+        this.updateCharCountChat();
+      }
+      
+    } catch (error) {
+      this.showError(error.message || '發送失敗，請重試');
+    } finally {
+      this.isSubmitting = false;
+      this.setLoadingState(false, false);
+    }
+  }
+  
+  /**
+   * Handle form submission for chat input
+   */
+  async handleSubmitChat() {
+    // Prevent double submission
+    if (this.isSubmitting) return;
+    
+    const inputValue = this.inputElementChat.value.trim();
+    
+    // Validate input
+    const validation = this.validateInput(inputValue);
+    if (!validation.isValid) {
+      this.showErrorChat(validation.message);
+      return;
+    }
+    
+    // Set submitting state
+    this.isSubmitting = true;
+    this.setLoadingState(true, true);
     
     try {
       // Send message through chat manager
       await this.chatManager.sendMessage(inputValue);
       
       // Clear input on success
-      this.inputElement.value = '';
-      this.updateCharCount();
-      this.hideError();
+      this.inputElementChat.value = '';
+      this.updateCharCountChat();
+      this.hideErrorChat();
       
     } catch (error) {
-      this.showError(error.message || '發送失敗，請重試');
+      this.showErrorChat(error.message || '發送失敗，請重試');
     } finally {
       this.isSubmitting = false;
-      this.setLoadingState(false);
+      this.setLoadingState(false, true);
     }
   }
   
   /**
    * Set loading state on send button
    * @param {boolean} isLoading - Loading state
+   * @param {boolean} isChatInput - Whether this is for chat input
    */
-  setLoadingState(isLoading) {
+  setLoadingState(isLoading, isChatInput = false) {
+    const button = isChatInput ? this.sendButtonChat : this.sendButton;
+    
+    if (!button) return;
+    
     if (isLoading) {
-      this.sendButton.disabled = true;
-      this.sendButton.innerHTML = '<span class="animate-pulse">...</span>';
+      button.disabled = true;
+      button.innerHTML = '<span class="animate-pulse">...</span>';
     } else {
-      this.sendButton.disabled = false;
-      this.sendButton.innerHTML = '→';
+      button.disabled = false;
+      button.innerHTML = '→';
+    }
+  }
+  
+  /**
+   * Show error message for chat input
+   * @param {string} message - Error message to display
+   */
+  showErrorChat(message) {
+    const errorElement = document.querySelector('#input-error-chat');
+    if (!errorElement) return;
+    
+    errorElement.textContent = message;
+    errorElement.classList.remove('opacity-0');
+    errorElement.classList.add('opacity-100');
+    
+    // Auto-hide error after 3 seconds
+    setTimeout(() => this.hideErrorChat(), 3000);
+    
+    // Add visual feedback to input
+    if (this.inputElementChat) {
+      this.inputElementChat.classList.add('border-red-400');
+    }
+  }
+  
+  /**
+   * Hide error message for chat input
+   */
+  hideErrorChat() {
+    const errorElement = document.querySelector('#input-error-chat');
+    if (!errorElement) return;
+    
+    errorElement.classList.remove('opacity-100');
+    errorElement.classList.add('opacity-0');
+    
+    if (this.inputElementChat) {
+      this.inputElementChat.classList.remove('border-red-400');
     }
   }
 }
