@@ -232,13 +232,27 @@ export class InputComponent {
     
     errorElement.textContent = message;
     errorElement.classList.remove('opacity-0');
-    errorElement.classList.add('opacity-100');
+    errorElement.classList.add('opacity-100', 'error-message');
+    
+    // Remove existing shake animation if present
+    this.inputElement.classList.remove('error-shake');
+    
+    // Force reflow to restart animation
+    void this.inputElement.offsetHeight;
+    
+    // Add shake animation to input
+    this.inputElement.classList.add('error-shake', 'error-border');
+    
+    // Remove shake animation after it completes (only if still present)
+    const handleAnimationEnd = () => {
+      if (this.inputElement.classList.contains('error-shake')) {
+        this.inputElement.classList.remove('error-shake');
+      }
+    };
+    this.inputElement.addEventListener('animationend', handleAnimationEnd, { once: true });
     
     // Auto-hide error after 3 seconds
     setTimeout(() => this.hideError(), 3000);
-    
-    // Add visual feedback to input
-    this.inputElement.classList.add('border-red-400');
   }
   
   /**
@@ -248,10 +262,10 @@ export class InputComponent {
     const errorElement = document.querySelector(SELECTORS.INPUT_ERROR);
     if (!errorElement) return;
     
-    errorElement.classList.remove('opacity-100');
+    errorElement.classList.remove('opacity-100', 'error-message');
     errorElement.classList.add('opacity-0');
     
-    this.inputElement.classList.remove('border-red-400');
+    this.inputElement.classList.remove('border-red-400', 'error-border');
   }
   
   /**
@@ -385,15 +399,29 @@ export class InputComponent {
     
     errorElement.textContent = message;
     errorElement.classList.remove('opacity-0');
-    errorElement.classList.add('opacity-100');
+    errorElement.classList.add('opacity-100', 'error-message');
+    
+    if (this.inputElementChat) {
+      // Remove existing shake animation if present
+      this.inputElementChat.classList.remove('error-shake');
+      
+      // Force reflow to restart animation
+      void this.inputElementChat.offsetHeight;
+      
+      // Add shake animation to input
+      this.inputElementChat.classList.add('error-shake', 'error-border');
+      
+      // Remove shake animation after it completes (only if still present)
+      const handleAnimationEnd = () => {
+        if (this.inputElementChat.classList.contains('error-shake')) {
+          this.inputElementChat.classList.remove('error-shake');
+        }
+      };
+      this.inputElementChat.addEventListener('animationend', handleAnimationEnd, { once: true });
+    }
     
     // Auto-hide error after 3 seconds
     setTimeout(() => this.hideErrorChat(), 3000);
-    
-    // Add visual feedback to input
-    if (this.inputElementChat) {
-      this.inputElementChat.classList.add('border-red-400');
-    }
   }
   
   /**
@@ -403,11 +431,11 @@ export class InputComponent {
     const errorElement = document.querySelector('#input-error-chat');
     if (!errorElement) return;
     
-    errorElement.classList.remove('opacity-100');
+    errorElement.classList.remove('opacity-100', 'error-message');
     errorElement.classList.add('opacity-0');
     
     if (this.inputElementChat) {
-      this.inputElementChat.classList.remove('border-red-400');
+      this.inputElementChat.classList.remove('border-red-400', 'error-border');
     }
   }
 }

@@ -27,32 +27,52 @@ export class AnimationController {
   }
   
   /**
-   * Transition from initial state to chat state
+   * Complete transition from initial state to chat state
+   * Orchestrates multiple element animations
    */
   async transitionToChat() {
     if (this.isAnimating || this.currentState === 'chat') return;
     
     this.isAnimating = true;
     
+    const elements = {
+      heroTitle: document.querySelector('.hero-title'),
+      heroSubtitle: document.querySelector('.hero-subtitle'),
+      usageHint: document.querySelector('.usage-hint'),
+      chatHeader: document.querySelector('.chat-header'),
+      topicSection: this.topicSection,
+      aiResponseContainer: this.aiResponseContainer,
+    };
+    
     try {
-      // Step 1: Fade out initial state elements
-      await Promise.all([
-        this.fadeOut(this.heroContainer, ANIMATION_DURATION.FADE_OUT),
-        this.fadeOut(this.usageHint, ANIMATION_DURATION.FADE_OUT)
-      ]);
+      // Phase 1: Fade out initial elements (300ms)
+      const fadeOutPromises = [
+        this.fadeOut(elements.heroTitle, 300),
+        this.fadeOut(elements.heroSubtitle, 300),
+        this.fadeOut(elements.usageHint, 300),
+      ];
+      await Promise.all(fadeOutPromises);
       
-      // Step 2: Hide app container and show chat container
+      // Phase 2: Switch containers
       this.appContainer.classList.add('hidden');
       this.chatContainer.classList.remove('hidden');
       
-      // Step 3: Show topic section and AI response container
-      this.topicSection.classList.remove('hidden');
-      await this.fadeIn(this.topicSection, ANIMATION_DURATION.FADE_IN);
+      // Phase 3: Fade in chat elements (300ms each, staggered)
+      elements.chatHeader.classList.remove('hidden');
+      await this.fadeIn(elements.chatHeader, 300);
       
-      this.aiResponseContainer.classList.remove('hidden');
-      await this.fadeIn(this.aiResponseContainer, ANIMATION_DURATION.FADE_IN);
+      if (elements.topicSection) {
+        elements.topicSection.classList.remove('hidden');
+        await this.fadeIn(elements.topicSection, 200);
+      }
+      
+      if (elements.aiResponseContainer) {
+        elements.aiResponseContainer.classList.remove('hidden');
+        await this.fadeIn(elements.aiResponseContainer, 200);
+      }
       
       this.currentState = 'chat';
+      
     } finally {
       this.isAnimating = false;
     }
@@ -93,22 +113,38 @@ export class AnimationController {
    * Display text with typewriter effect
    * @param {HTMLElement} element - Target element
    * @param {string} text - Text to display
-   * @param {number} speed - Milliseconds per character
+   * @param {number} speed - Milliseconds per character (default 30)
+   * @param {Function} onChar - Callback for each character
    */
-  async typewriterEffect(element, text, speed = TYPING_SPEED) {
-    if (!element) return;
+  async typewriterEffect(element, text, speed = 30, onChar = null) {
+    if (!element || !text) return;
     
     const adjustedSpeed = this.getAnimationDuration(speed);
     
     element.textContent = '';
-    element.classList.add('streaming-cursor');
+    this.showCursor(element);
     
     for (let i = 0; i < text.length; i++) {
-      element.textContent += text[i];
-      await this.delay(adjustedSpeed);
+      const char = text[i];
+      element.textContent += char;
+      
+      // Callback for custom handling
+      if (onChar) {
+        onChar(char, i, text.length);
+      }
+      
+      // Variable speed: pause longer on punctuation
+      let delay = adjustedSpeed;
+      if ('，。！？、'.includes(char)) {
+        delay = adjustedSpeed * 3;
+      } else if (',.!?;:'.includes(char)) {
+        delay = adjustedSpeed * 2;
+      }
+      
+      await this.delay(delay);
     }
     
-    element.classList.remove('streaming-cursor');
+    this.hideCursor(element);
   }
   
   /**
@@ -185,40 +221,55 @@ export class AnimationController {
   }
   
   /**
-   * Fade in animation
+   * Fade in animation with visibility handling
    * @param {HTMLElement} element - Target element
    * @param {number} duration - Animation duration in ms
    */
   async fadeIn(element, duration = 300) {
     if (!element) return;
     
-    const adjustedDuration = this.getAnimationDuration(duration);
+    // Respect user preference for reduced motion
+    const actualDuration = this.prefersReducedMotion() ? 0 : duration;
     
-    element.style.transition = `opacity ${adjustedDuration}ms ease-out`;
+    // Setup initial state
     element.style.opacity = '0';
+    element.style.visibility = 'visible';
     element.classList.remove('hidden');
     
-    // Trigger reflow
+    // Force reflow to ensure initial state is applied
     element.offsetHeight;
     
+    // Animate
+    element.style.transition = `opacity ${actualDuration}ms ease-out`;
     element.style.opacity = '1';
-    await this.delay(adjustedDuration);
+    
+    await this.delay(actualDuration);
+    
+    // Cleanup
+    element.style.transition = '';
   }
   
   /**
-   * Fade out animation
+   * Fade out animation with visibility handling
    * @param {HTMLElement} element - Target element
    * @param {number} duration - Animation duration in ms
    */
   async fadeOut(element, duration = 300) {
     if (!element) return;
     
-    const adjustedDuration = this.getAnimationDuration(duration);
+    const actualDuration = this.prefersReducedMotion() ? 0 : duration;
     
-    element.style.transition = `opacity ${adjustedDuration}ms ease-out`;
+    element.style.transition = `opacity ${actualDuration}ms ease-out`;
     element.style.opacity = '0';
-    await this.delay(adjustedDuration);
+    
+    await this.delay(actualDuration);
+    
+    // Hide after animation
+    element.style.visibility = 'hidden';
     element.classList.add('hidden');
+    
+    // Cleanup
+    element.style.transition = '';
   }
   
   /**
@@ -311,5 +362,126 @@ export class AnimationController {
     
     // Write phase in next frame
     await this.requestFrame(() => writeCallback(data));
+  }
+  
+  /**
+   * Perform smooth layout change
+   * Uses auto-animate technique for unknown height changes
+   * @param {HTMLElement} container - Container element
+   * @param {Function} updateFn - Function that changes layout
+   */
+  async smoothLayoutChange(container, updateFn) {
+    if (!container) return;
+    
+    // Record current state
+    const children = Array.from(container.children).map(child => ({
+      el: child,
+      rect: child.getBoundingClientRect()
+    }));
+    
+    // Perform update
+    await updateFn();
+    
+    // Calculate and apply inverse transforms (batched)
+    children.forEach(({ el, rect: oldRect }) => {
+      if (!el.getBoundingClientRect) return;
+      
+      const newRect = el.getBoundingClientRect();
+      const deltaX = oldRect.left - newRect.left;
+      const deltaY = oldRect.top - newRect.top;
+      const scaleX = oldRect.width / newRect.width || 1;
+      const scaleY = oldRect.height / newRect.height || 1;
+      
+      el.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+      el.style.transformOrigin = 'top left';
+    });
+    
+    // Force single reflow for all elements
+    container.offsetHeight;
+    
+    // Animate to final state (batched)
+    children.forEach(({ el }) => {
+      el.style.transition = 'transform 300ms ease-out';
+      el.style.transform = '';
+    });
+    
+    await this.delay(300);
+    
+    // Cleanup
+    children.forEach(({ el }) => {
+      el.style.transition = '';
+      el.style.transformOrigin = '';
+    });
+  }
+  
+  /**
+   * Promote element to GPU layer for better performance
+   * @param {HTMLElement} element
+   */
+  promoteToGPU(element) {
+    if (!element) return;
+    element.style.willChange = 'transform, opacity';
+    element.style.transform = 'translateZ(0)';
+  }
+  
+  /**
+   * Demote element from GPU layer (cleanup)
+   * @param {HTMLElement} element
+   */
+  demoteFromGPU(element) {
+    if (!element) return;
+    element.style.willChange = 'auto';
+    // Don't clear transform as it may be used by other animations
+  }
+  
+  /**
+   * Batch animation start for multiple elements
+   * Reduces layout thrashing
+   * @param {Array<{element: HTMLElement, animation: Function, duration: number}>} animations
+   */
+  async batchAnimate(animations) {
+    if (!animations || animations.length === 0) return;
+    
+    // Write phase: start all animations
+    requestAnimationFrame(() => {
+      animations.forEach(({ element, animation }) => {
+        if (!element || !animation) return;
+        this.promoteToGPU(element);
+        animation(element);
+      });
+    });
+    
+    // Wait for longest animation
+    const maxDuration = Math.max(
+      ...animations.map(a => a.duration || 300)
+    );
+    await this.delay(maxDuration);
+    
+    // Cleanup phase
+    animations.forEach(({ element }) => {
+      this.demoteFromGPU(element);
+    });
+  }
+  
+  /**
+   * Show streaming cursor
+   * @param {HTMLElement} element
+   */
+  showCursor(element) {
+    element?.classList.add('streaming-cursor');
+    element?.classList.remove('complete');
+  }
+  
+  /**
+   * Hide streaming cursor
+   * @param {HTMLElement} element
+   */
+  hideCursor(element) {
+    element?.classList.add('complete');
+    
+    // Remove cursor class after a short delay
+    setTimeout(() => {
+      element?.classList.remove('streaming-cursor', 'complete');
+    }, 100);
   }
 }

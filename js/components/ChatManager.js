@@ -76,8 +76,13 @@ export class ChatManager {
     if (this.hasReachedLimit()) {
       throw new Error('已達到對話次數上限');
     }
+    
+    const currentIndex = this.messageCount;
     this.messageCount++;
     this.updateConversationDots();
+    
+    // Animate the newly filled dot
+    this.animateConversationDot(currentIndex);
   }
   
   /**
@@ -332,6 +337,24 @@ export class ChatManager {
     }
     
     this.conversationDotsElement.innerHTML = dots.join(' ');
+  }
+  
+  /**
+   * Animate a conversation dot when a message is successfully sent
+   * @param {number} dotIndex - Index of the dot to animate
+   */
+  animateConversationDot(dotIndex) {
+    if (!this.conversationDotsElement) return;
+    
+    const dots = this.conversationDotsElement.querySelectorAll('span');
+    const dot = dots[dotIndex];
+    
+    if (dot) {
+      dot.classList.add('success-pulse');
+      dot.addEventListener('animationend', () => {
+        dot.classList.remove('success-pulse');
+      }, { once: true });
+    }
   }
   
   /**
