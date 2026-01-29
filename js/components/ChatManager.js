@@ -24,6 +24,9 @@ export class ChatManager {
     // Services
     this.openAIService = null;
     
+    // Retry configuration
+    this.maxRetries = 2;
+    
     this.init();
   }
   
@@ -35,9 +38,8 @@ export class ChatManager {
     this.aiResponseElement = document.querySelector(SELECTORS.AI_RESPONSE);
     this.topicDisplayElement = document.querySelector(SELECTORS.TOPIC_DISPLAY);
     
-    // Note: OpenAI service initialization is optional
-    // For now, we use mock responses
-    // this.openAIService = new OpenAIService('api-key');
+    // Initialize OpenAI service with hardcoded configuration
+    this.openAIService = new OpenAIService();
     
     // Set initial state
     this.updateConversationDots();
@@ -126,7 +128,7 @@ export class ChatManager {
   }
   
   /**
-   * Stream AI response with typewriter effect
+   * Stream AI response with real-time display
    * @param {string} message - User message
    */
   async streamResponse(message) {
@@ -136,24 +138,158 @@ export class ChatManager {
       // Clear previous response
       if (this.aiResponseElement) {
         this.aiResponseElement.textContent = '';
+        this.aiResponseElement.classList.add('streaming-cursor');
       }
       
-      // Simulate streaming response with typewriter effect
-      // In production, this would use the OpenAI streaming API
-      const mockResponse = this.generateMockResponse(message);
-      await this.animationController.typewriterEffect(
-        this.aiResponseElement, 
-        mockResponse
+      // Show loading indicator
+      this.showStreamingLoader();
+      
+      // Build messages with conversation context
+      const messages = this.openAIService.buildMessages(
+        message, 
+        this.getConversationContext()
       );
       
-      // Add AI response to history
-      this.addAIResponse(mockResponse);
+      // Use optimized streaming with batched updates
+      await this.optimizedStreamResponse(messages);
       
     } catch (error) {
       console.error('Error streaming response:', error);
-      throw new Error('無法獲取回應，請重試');
+      
+      // Display error to user
+      if (this.aiResponseElement) {
+        this.aiResponseElement.classList.remove('streaming-cursor');
+        this.aiResponseElement.textContent = `發生錯誤：${error.message}`;
+        this.aiResponseElement.classList.add('text-red-400');
+      }
+      
+      throw error;
     } finally {
       this.isStreaming = false;
+    }
+  }
+
+  /**
+   * Optimized streaming with batched updates
+   * @param {Array} messages - Messages array
+   */
+  async optimizedStreamResponse(messages) {
+    const responseElement = this.aiResponseElement;
+    if (!responseElement) return;
+    
+    let pendingContent = '';
+    let updateScheduled = false;
+    let fullContent = '';
+    
+    // Batch DOM updates for better performance
+    const scheduleUpdate = () => {
+      if (updateScheduled) return;
+      
+      updateScheduled = true;
+      requestAnimationFrame(() => {
+        this.clearStreamingLoader();
+        responseElement.textContent = fullContent;
+        this.scrollToBottom();
+        pendingContent = '';
+        updateScheduled = false;
+      });
+    };
+    
+    await this.openAIService.sendStreamingMessage(messages, {
+      onChunk: (chunk, fullText) => {
+        fullContent = fullText;
+        pendingContent += chunk;
+        scheduleUpdate();
+      },
+      
+      onComplete: (finalContent) => {
+        // Ensure final content is displayed
+        if (responseElement) {
+          responseElement.textContent = finalContent;
+          responseElement.classList.remove('streaming-cursor');
+        }
+        
+        // Add to conversation history
+        this.addAIResponse(finalContent);
+        
+        console.log('Streaming complete:', finalContent.length, 'characters');
+      },
+      
+      onError: async (error) => {
+        // Try recovery or retry
+        const shouldRetry = await this.handleStreamingError(error, 0);
+        
+        if (!shouldRetry) {
+          // Display error
+          if (responseElement) {
+            responseElement.classList.remove('streaming-cursor');
+            responseElement.textContent = `發生錯誤：${error.message}`;
+            responseElement.classList.add('text-red-400');
+          }
+          throw error;
+        }
+      }
+    });
+  }
+
+  /**
+   * Show loading indicator during initial API delay
+   */
+  showStreamingLoader() {
+    const responseElement = this.aiResponseElement;
+    if (responseElement) {
+      responseElement.innerHTML = '<span class="text-purple-400">思考中...</span>';
+    }
+  }
+
+  /**
+   * Clear loading indicator
+   */
+  clearStreamingLoader() {
+    const responseElement = this.aiResponseElement;
+    if (responseElement && responseElement.innerHTML.includes('思考中')) {
+      responseElement.innerHTML = '';
+    }
+  }
+
+  /**
+   * Handle streaming errors with retry logic
+   * @param {Error} error - The error
+   * @param {number} retryCount - Current retry attempt
+   * @returns {Promise<boolean>} Whether to retry
+   */
+  async handleStreamingError(error, retryCount = 0) {
+    // Log error
+    console.error(`Streaming error (attempt ${retryCount + 1}):`, error);
+    
+    // Check if retryable
+    const retryableErrors = [
+      'ECONNRESET',
+      'ETIMEDOUT',
+      'Rate limit',
+    ];
+    
+    const isRetryable = retryableErrors.some(e => 
+      error.message.includes(e) || error.code === e
+    );
+    
+    if (isRetryable && retryCount < this.maxRetries) {
+      // Wait before retry (exponential backoff)
+      const delay = Math.pow(2, retryCount) * 1000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return true; // Should retry
+    }
+    
+    return false; // Don't retry
+  }
+
+  /**
+   * Scroll response container to bottom
+   */
+  scrollToBottom() {
+    const container = document.querySelector('#ai-response-container');
+    if (container) {
+      container.scrollTop = container.scrollHeight;
     }
   }
   
