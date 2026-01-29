@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Animation timing functions - Tailwind doesn't support custom easings */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+    
+    /* Complex transition values */
+    --transition-layout: all 0.6s var(--ease-out-expo);
+  }
+  
+  body {
+    @apply bg-bg-primary text-text-primary font-primary antialiased;
+  }
+}
+
+@layer components {
+  /* Layout transition animation */
+  .layout-transition {
+    @apply transition-all duration-600 ease-out-expo;
+  }
+  
+  /* Fade animations */
+  .fade-in {
+    @apply animate-fade-in;
+  }
+  
+  .fade-out {
+    @apply animate-fade-out;
+  }
+  
+  /* Streaming text cursor */
+  .streaming-cursor {
+    @apply border-r-2 border-white animate-blink;
+  }
+}
+
+@layer utilities {
+  /* Typing animation helper */
+  .text-streaming {
+    @apply overflow-hidden whitespace-pre-wrap;
+  }
+}
