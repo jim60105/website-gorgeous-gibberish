@@ -105,7 +105,7 @@ describe('InputComponent', () => {
       expect(inputComponent.charCountElement.classList.contains('text-red-400')).toBe(false);
     });
     
-    test('should show yellow warning at 99% capacity', () => {
+    test('should show yellow warning at 95% capacity', () => {
       inputComponent.inputElement.value = '1234567890123456789'; // 19 chars = 95%
       inputComponent.updateCharCount();
       

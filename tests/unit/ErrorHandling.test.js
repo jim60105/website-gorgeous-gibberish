@@ -94,13 +94,6 @@ describe('APIErrorHandler', () => {
       
       expect(result.type).toBe('NETWORK_ERROR');
     });
-    
-    test('should detect network failure', () => {
-      const error = new TypeError('Failed to fetch');
-      const result = APIErrorHandler.handle(error);
-      
-      expect(result.type).toBe('NETWORK_ERROR');
-    });
   });
   
   describe('isTimeoutError', () => {
@@ -224,8 +217,8 @@ describe('ErrorRecovery', () => {
       expect(operation).toHaveBeenCalledTimes(3); // Initial + 2 retries
     });
     
-    test('should use exponential backoff', async () => {
-      // Use short delays for testing
+    test('should use increasing delays for retry attempts', async () => {
+      // Use short delays for testing - demonstrating increasing delays
       errorRecovery.retryDelays = [10, 20, 30];
       let attempts = 0;
       const operation = jest.fn().mockImplementation(async () => {
