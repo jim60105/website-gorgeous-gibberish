@@ -17,7 +17,6 @@ export class AnimationController {
    */
   init() {
     // Cache DOM elements
-    this.app = document.querySelector(SELECTORS.APP);
     this.heroTitle = document.querySelector('.hero-title');
     this.inputContainer = document.querySelector('#input-container');
     this.chatHeader = document.querySelector('.chat-header');

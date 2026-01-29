@@ -88,27 +88,41 @@ export class ChatManager {
       throw new Error('已達到對話次數上限，請點擊「重新開始」開始新對話');
     }
     
+    // Check for concurrent streaming
+    if (this.isStreaming) {
+      throw new Error('正在處理上一條訊息，請稍候');
+    }
+    
     // Update state
     this.currentTopic = message;
-    this.incrementMessageCount();
     
-    // Add to history
+    // Add to history (before incrementing count, in case of error)
     this.conversationHistory.push({
       role: 'user',
       content: message,
       timestamp: Date.now()
     });
     
-    // Trigger layout transition on first message
-    if (this.messageCount === 1) {
-      await this.animationController.transitionToChat();
+    try {
+      // Trigger layout transition on first message
+      if (this.messageCount === 0) {
+        await this.animationController.transitionToChat();
+      }
+      
+      // Update topic display
+      this.updateTopicDisplay(message);
+      
+      // Stream AI response
+      await this.streamResponse(message);
+      
+      // Only increment count after successful response
+      this.incrementMessageCount();
+      
+    } catch (error) {
+      // Remove the user message from history on error
+      this.conversationHistory.pop();
+      throw error;
     }
-    
-    // Update topic display
-    this.updateTopicDisplay(message);
-    
-    // Stream AI response
-    await this.streamResponse(message);
   }
   
   /**

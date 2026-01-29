@@ -57,6 +57,9 @@ export class InputComponent {
   handleInput() {
     this.updateCharCount();
     this.enforceMaxLength();
+    
+    // Clear error styling when user starts typing
+    this.inputElement.classList.remove('border-red-400');
   }
   
   /**
@@ -138,9 +141,6 @@ export class InputComponent {
     const phrase = getRandomPhrase();
     this.inputElement.value = phrase;
     this.updateCharCount();
-    
-    // Set placeholder as well for visual hint
-    this.inputElement.placeholder = phrase;
   }
   
   /**
@@ -163,15 +163,15 @@ export class InputComponent {
    * @param {string} message - Error message to display
    */
   showError(message) {
-    const errorElement = document.querySelector('#input-error');
-    if (errorElement) {
-      errorElement.textContent = message;
-      errorElement.classList.remove('opacity-0');
-      errorElement.classList.add('opacity-100');
-      
-      // Auto-hide error after 3 seconds
-      setTimeout(() => this.hideError(), 3000);
-    }
+    const errorElement = document.querySelector(SELECTORS.INPUT_ERROR);
+    if (!errorElement) return;
+    
+    errorElement.textContent = message;
+    errorElement.classList.remove('opacity-0');
+    errorElement.classList.add('opacity-100');
+    
+    // Auto-hide error after 3 seconds
+    setTimeout(() => this.hideError(), 3000);
     
     // Add visual feedback to input
     this.inputElement.classList.add('border-red-400');
@@ -181,11 +181,11 @@ export class InputComponent {
    * Hide error message
    */
   hideError() {
-    const errorElement = document.querySelector('#input-error');
-    if (errorElement) {
-      errorElement.classList.remove('opacity-100');
-      errorElement.classList.add('opacity-0');
-    }
+    const errorElement = document.querySelector(SELECTORS.INPUT_ERROR);
+    if (!errorElement) return;
+    
+    errorElement.classList.remove('opacity-100');
+    errorElement.classList.add('opacity-0');
     
     this.inputElement.classList.remove('border-red-400');
   }
