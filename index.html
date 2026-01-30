@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="絢 - AI 聊天機器人，視覺簡約與文字絢爛的反差美學">
     <title>絢</title>
+    
+    <!-- Google Fonts: Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts: Yuji Boku (標題，只載入「絢」字) + Iansui (內文) -->
+    <link href="https://fonts.googleapis.com/css2?family=Yuji+Boku&display=swap&text=絢" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Iansui&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="dist/styles.css">
     
     <!-- Import map for OpenAI SDK (browser-based ES modules) -->
@@ -23,7 +32,7 @@
         
         <!-- Hero Section -->
         <div class="hero-container text-center mb-8 layout-transition">
-            <h1 class="hero-title text-5xl md:text-8xl lg:text-9xl font-bold tracking-tight mb-4">
+            <h1 class="hero-title font-title text-5xl md:text-8xl lg:text-9xl font-bold tracking-tight mb-4">
                 <span class="text-white hover:text-gray-200 transition-colors duration-300">
                     絢
                 </span>
@@ -83,7 +92,7 @@
             
             <!-- Input Meta Row -->
             <div class="flex justify-between items-center mt-2 px-1">
-                <span id="input-error" class="text-red-400 text-sm opacity-0 transition-opacity duration-200" aria-live="polite"></span>
+                <span id="input-error" class="text-red-400 text-sm opacity-0 transition-opacity duration-200 min-h-[1.25rem]" aria-live="polite"></span>
                 <span id="char-count" class="text-meta text-text-muted">0/20</span>
             </div>
             
@@ -97,7 +106,7 @@
         <!-- Chat Header -->
         <header class="chat-header fixed top-0 left-0 right-0 bg-bg-primary/95 backdrop-blur-sm border-b border-border-color z-10 safe-area-top">
             <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-                <h1 class="text-xl font-bold text-white">絢</h1>
+                <h1 class="text-xl font-bold text-white font-title">絢</h1>
                 <div class="flex items-center gap-3">
                     <button 
                         id="help-button"
@@ -128,7 +137,7 @@
         </header>
         
         <!-- Main Content Area -->
-        <main class="flex-1 pt-16 pb-32 px-4">
+        <main class="flex-1 pt-[90px] pb-32 px-4">
             <div class="container mx-auto max-w-2xl">
                 
                 <!-- Topic Display -->
@@ -197,7 +206,7 @@
                 
                 <!-- Input Meta Row -->
                 <div class="flex justify-between items-center mt-2 px-1">
-                    <span id="input-error-chat" class="text-red-400 text-sm opacity-0 transition-opacity duration-200" aria-live="polite"></span>
+                    <span id="input-error-chat" class="text-red-400 text-sm opacity-0 transition-opacity duration-200 min-h-[1.25rem]" aria-live="polite"></span>
                 </div>
                 
             </div>

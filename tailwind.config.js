@@ -17,7 +17,11 @@ module.exports = {
         'border-color': '#2a2a2a',
       },
       fontFamily: {
-        primary: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        // 主標題專用字型
+        title: ['"Yuji Boku"', 'serif'],
+        // 主要內文字型（原 primary）
+        primary: ['Iansui', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        // 等寬字型（保持不變）
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       fontSize: {

@@ -362,12 +362,21 @@ export class ChatManager {
   }
 
   /**
-   * Scroll response container to bottom
+   * Scroll to bottom of the page during streaming
+   * Uses smooth scrolling for better UX
    */
   scrollToBottom() {
-    const container = document.querySelector('#ai-response-container');
-    if (container) {
-      container.scrollTop = container.scrollHeight;
+    // Method 1: Scroll the main content area (for chat container)
+    const chatMain = document.querySelector('#chat-container > main');
+    if (chatMain) {
+      chatMain.scrollTop = chatMain.scrollHeight;
+    }
+    
+    // Method 2: Also scroll the window to ensure AI response is visible
+    const aiResponse = document.querySelector('#ai-response');
+    if (aiResponse) {
+      // Use scrollIntoView with smooth behavior
+      aiResponse.scrollIntoView({ behavior: 'auto', block: 'end' });
     }
   }
   

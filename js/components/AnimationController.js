@@ -18,6 +18,8 @@ export class AnimationController {
   init() {
     // Cache DOM elements
     this.heroContainer = document.querySelector('.hero-container');
+    this.heroTitle = document.querySelector('.hero-title');
+    this.heroSubtitle = document.querySelector('.hero-subtitle');
     this.usageHint = document.querySelector('.usage-hint');
     this.appContainer = document.querySelector('#app');
     this.chatContainer = document.querySelector('#chat-container');
@@ -97,10 +99,38 @@ export class AnimationController {
       this.chatContainer.classList.add('hidden');
       this.appContainer.classList.remove('hidden');
       
-      // Step 3: Show initial state elements
+      // Step 3: Reset hero elements visibility before fade in
+      // 重要：確保所有子元素的 hidden class 被移除
+      const heroTitle = this.heroTitle || document.querySelector('.hero-title');
+      const heroSubtitle = this.heroSubtitle || document.querySelector('.hero-subtitle');
+      
+      if (heroTitle) {
+        heroTitle.classList.remove('hidden');
+        heroTitle.style.visibility = 'visible';
+        heroTitle.style.opacity = '0';
+      }
+      if (heroSubtitle) {
+        heroSubtitle.classList.remove('hidden');
+        heroSubtitle.style.visibility = 'visible';
+        heroSubtitle.style.opacity = '0';
+      }
+      if (this.heroContainer) {
+        this.heroContainer.classList.remove('hidden');
+        this.heroContainer.style.visibility = 'visible';
+        this.heroContainer.style.opacity = '0';
+      }
+      if (this.usageHint) {
+        this.usageHint.classList.remove('hidden');
+        this.usageHint.style.visibility = 'visible';
+        this.usageHint.style.opacity = '0';
+      }
+      
+      // Step 4: Show initial state elements with fade in
       await Promise.all([
         this.fadeIn(this.heroContainer, ANIMATION_DURATION.FADE_IN),
-        this.fadeIn(this.usageHint, ANIMATION_DURATION.FADE_IN)
+        this.fadeIn(this.usageHint, ANIMATION_DURATION.FADE_IN),
+        heroTitle ? this.fadeIn(heroTitle, ANIMATION_DURATION.FADE_IN) : Promise.resolve(),
+        heroSubtitle ? this.fadeIn(heroSubtitle, ANIMATION_DURATION.FADE_IN) : Promise.resolve()
       ]);
       
       this.currentState = 'initial';
