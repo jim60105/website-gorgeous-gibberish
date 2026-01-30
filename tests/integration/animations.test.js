@@ -26,10 +26,8 @@ describe('Animation Sequences Integration', () => {
     document.body.innerHTML = `
       <div id="app" class="">
         <div class="hero-container">
-          <div class="hero-title">絢</div>
-          <div class="hero-subtitle">副標題</div>
+          <h1 class="hero-title">絢</h1>
         </div>
-        <div class="usage-hint">使用提示</div>
         <div id="input-container" class="initial-state"></div>
       </div>
       <div id="chat-container" class="hidden">
@@ -60,13 +58,15 @@ describe('Animation Sequences Integration', () => {
     test('should hide hero elements during transition', async () => {
       await animationController.transitionToChat();
       
+      const appContainer = document.querySelector('#app');
       const heroTitle = document.querySelector('.hero-title');
-      const heroSubtitle = document.querySelector('.hero-subtitle');
-      const usageHint = document.querySelector('.usage-hint');
       
+      // App container should be hidden
+      expect(appContainer.classList.contains('hidden')).toBe(true);
+      
+      // Hero title should be faded out (hidden class and visibility)
       expect(heroTitle.classList.contains('hidden')).toBe(true);
-      expect(heroSubtitle?.classList.contains('hidden')).toBe(true);
-      expect(usageHint.classList.contains('hidden')).toBe(true);
+      expect(heroTitle.style.visibility).toBe('hidden');
     });
     
     test('should show chat elements after transition', async () => {

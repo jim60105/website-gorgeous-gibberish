@@ -31,9 +31,9 @@ jobs:
         uses: jim60105/action-install-google-fonts@v2
         with:
           fonts: |
-            Noto Sans TC
             Noto Color Emoji
             Iansui
+            Yuji Boku
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
