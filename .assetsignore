@@ -1,0 +1,30 @@
+_headers
+_redirects
+
+# 開發工具和設定檔案
+node_modules/
+.git/
+.github/
+.vscode/
+.gitignore
+
+# 原始碼和建構檔案
+src/
+tailwind.config.js
+
+# 測試檔案
+tests/
+coverage/
+jest.config.js
+playwright.config.js
+
+# 套件管理檔案
+package.json
+pnpm-lock.yaml
+
+# 文件檔案
+docs/
+*.md
+AGENTS.md
+README.md
+LICENSE
