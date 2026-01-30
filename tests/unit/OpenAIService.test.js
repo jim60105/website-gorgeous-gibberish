@@ -86,6 +86,40 @@ describe('OpenAIService', () => {
       
       expect(messages).toHaveLength(2);
     });
+    
+    test('should append sponsor prompt to system message when user mentions 夜花', () => {
+      const messages = openAIService.buildMessages('告訴我關於夜花的事', []);
+      
+      expect(messages).toHaveLength(2);
+      expect(messages[0].role).toBe('system');
+      expect(messages[0].content).toContain('須多夜花');
+      expect(messages[0].content).toContain('SudaYoruka.com');
+      expect(messages[1].role).toBe('user');
+      expect(messages[1].content).toBe('告訴我關於夜花的事');
+    });
+    
+    test('should append sponsor prompt to system message when user mentions VTuber (case insensitive)', () => {
+      const messagesLower = openAIService.buildMessages('我喜歡 vtuber', []);
+      const messagesUpper = openAIService.buildMessages('我喜歡 VTUBER', []);
+      const messagesMixed = openAIService.buildMessages('我喜歡 VTuber', []);
+      
+      expect(messagesLower[0].content).toContain('須多夜花');
+      expect(messagesUpper[0].content).toContain('須多夜花');
+      expect(messagesMixed[0].content).toContain('須多夜花');
+      
+      expect(messagesLower[1].content).toBe('我喜歡 vtuber');
+      expect(messagesUpper[1].content).toBe('我喜歡 VTUBER');
+      expect(messagesMixed[1].content).toBe('我喜歡 VTuber');
+    });
+    
+    test('should not append sponsor prompt when keywords are absent', () => {
+      const messages = openAIService.buildMessages('Hello world', []);
+      
+      expect(messages).toHaveLength(2);
+      expect(messages[0].role).toBe('system');
+      expect(messages[0].content).not.toContain('須多夜花');
+      expect(messages[1].content).toBe('Hello world');
+    });
   });
   
   describe('sendMessage', () => {

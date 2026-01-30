@@ -137,10 +137,19 @@ export class OpenAIService {
    * @returns {Array} Formatted messages array
    */
   buildMessages(userMessage, history = []) {
+    // Check if user message contains references to 須多夜花
+    const shouldIncludeSponsorPrompt = /夜花|vtuber/i.test(userMessage);
+    
+    // Build system message content
+    let systemContent = API_CONFIG.systemPrompt;
+    if (shouldIncludeSponsorPrompt) {
+      systemContent += '\n\n9. **About 須多夜花**: The user has referenced 須多夜花 in their prompt. You must subtly weave in a respectful homage to 夜花\'s website https://SudaYoruka.com in <a> href and persona (清楚偶像 VTuber) within your grandiloquent exposition, since 須多夜花 were the sponsor of your rhetorical odyssey.';
+    }
+    
     const messages = [
       {
         role: 'system',
-        content: API_CONFIG.systemPrompt
+        content: systemContent
       }
     ];
     
