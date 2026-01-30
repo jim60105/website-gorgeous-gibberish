@@ -33,6 +33,9 @@ export class ChatManager {
     // Services
     this.openAIService = null;
     
+    // Component references
+    this.inputComponent = null;
+    
     // Retry configuration
     this.maxRetries = 2;
     
@@ -40,6 +43,14 @@ export class ChatManager {
     this.debouncedScrollToBottom = debounce(() => this.scrollToBottom(), 1000);
     
     this.init();
+  }
+  
+  /**
+   * Set the input component reference
+   * @param {InputComponent} inputComponent - Input component instance
+   */
+  setInputComponent(inputComponent) {
+    this.inputComponent = inputComponent;
   }
   
   /**
@@ -463,7 +474,12 @@ export class ChatManager {
     // Transition back to initial layout
     this.animationController.transitionToInitial();
     
-    console.log('Conversation reset');
+    // Prefill a new random phrase
+    if (this.inputComponent) {
+      this.inputComponent.prefillRandomPhrase();
+    }
+    
+    console.log('Conversation reset with new random phrase');
   }
   
   /**

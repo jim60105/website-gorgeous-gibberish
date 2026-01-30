@@ -21,6 +21,7 @@ import { ChatManager } from '../../js/components/ChatManager.js';
 describe('ChatManager', () => {
   let chatManager;
   let mockAnimationController;
+  let mockInputComponent;
   
   beforeEach(() => {
     // Setup DOM
@@ -41,7 +42,13 @@ describe('ChatManager', () => {
       currentState: 'initial',
     };
     
+    // Mock InputComponent
+    mockInputComponent = {
+      prefillRandomPhrase: jest.fn(),
+    };
+    
     chatManager = new ChatManager(mockAnimationController);
+    chatManager.setInputComponent(mockInputComponent);
   });
   
   describe('initialization', () => {
@@ -59,6 +66,15 @@ describe('ChatManager', () => {
     
     test('should have empty current topic', () => {
       expect(chatManager.currentTopic).toBe('');
+    });
+    
+    test('should set input component reference', () => {
+      const newChatManager = new ChatManager(mockAnimationController);
+      const testInputComponent = { prefillRandomPhrase: jest.fn() };
+      
+      newChatManager.setInputComponent(testInputComponent);
+      
+      expect(newChatManager.inputComponent).toBe(testInputComponent);
     });
   });
   
@@ -219,6 +235,18 @@ describe('ChatManager', () => {
       chatManager.resetConversation();
       
       expect(aiResponseElement.textContent).toBe('');
+    });
+    
+    test('should call prefillRandomPhrase when inputComponent is set', () => {
+      chatManager.resetConversation();
+      
+      expect(mockInputComponent.prefillRandomPhrase).toHaveBeenCalled();
+    });
+    
+    test('should not throw error when inputComponent is not set', () => {
+      const chatManagerWithoutInput = new ChatManager(mockAnimationController);
+      
+      expect(() => chatManagerWithoutInput.resetConversation()).not.toThrow();
     });
   });
   
