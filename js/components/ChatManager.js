@@ -12,6 +12,7 @@ import { errorRecovery } from '../services/ErrorRecovery.js';
 import { errorLogger } from '../services/ErrorLogger.js';
 import { networkMonitor } from '../services/NetworkMonitor.js';
 import { TimeoutHandler, API_TIMEOUT } from '../services/TimeoutHandler.js';
+import { debounce } from '../utils/helpers.js';
 
 export class ChatManager {
   constructor(animationController) {
@@ -34,6 +35,9 @@ export class ChatManager {
     
     // Retry configuration
     this.maxRetries = 2;
+    
+    // Create debounced scroll function (max once per second)
+    this.debouncedScrollToBottom = debounce(() => this.scrollToBottom(), 1000);
     
     this.init();
   }
@@ -267,7 +271,7 @@ export class ChatManager {
       requestAnimationFrame(() => {
         this.clearStreamingLoader();
         responseElement.textContent = fullContent;
-        this.scrollToBottom();
+        this.debouncedScrollToBottom();
         pendingContent = '';
         updateScheduled = false;
       });
