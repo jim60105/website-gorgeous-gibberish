@@ -451,6 +451,13 @@
   }
 }
 
+  /* Link glow styling */
+  a {
+    transition: color 200ms ease, text-shadow 200ms ease;
+    color: #fff;
+    text-shadow: 0 0 5px #b23e55, 0 0 8px #b23e55, 0 0 10px #b23e55, 0 0 15px #b23e55, 0 0 40px #b23e55, 0 0 70px #b23e55;
+  }
+
 @layer utilities {
   /* Typing animation helper */
   .text-streaming {
