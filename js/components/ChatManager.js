@@ -363,7 +363,7 @@ export class ChatManager {
 
   /**
    * Scroll to bottom of the page during streaming
-   * Uses smooth scrolling for better UX
+   * Uses auto behavior (not smooth) to avoid lag during real-time streaming
    */
   scrollToBottom() {
     // Method 1: Scroll the main content area (for chat container)
@@ -375,7 +375,8 @@ export class ChatManager {
     // Method 2: Also scroll the window to ensure AI response is visible
     const aiResponse = document.querySelector('#ai-response');
     if (aiResponse) {
-      // Use scrollIntoView with smooth behavior
+      // Use scrollIntoView with auto behavior to prevent lag during streaming
+      // 'auto' instead of 'smooth' ensures immediate scrolling for real-time updates
       aiResponse.scrollIntoView({ behavior: 'auto', block: 'end' });
     }
   }
