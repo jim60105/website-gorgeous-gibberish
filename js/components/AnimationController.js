@@ -13,6 +13,7 @@ export class AnimationController {
     this.contentQueue = [];
     this.isProcessingQueue = false;
     this.queueInterval = null;
+    this.endStreamingInterval = null;
     this.accumulatedHTML = ''; // Accumulated HTML string
     
     this.init();
@@ -171,6 +172,7 @@ export class AnimationController {
    * @param {HTMLElement} element - Target element
    */
   startQueueProcessing(element) {
+    if (!element) return;
     if (this.isProcessingQueue) return;
     
     this.isProcessingQueue = true;
@@ -194,6 +196,10 @@ export class AnimationController {
     if (this.queueInterval) {
       clearInterval(this.queueInterval);
       this.queueInterval = null;
+    }
+    if (this.endStreamingInterval) {
+      clearInterval(this.endStreamingInterval);
+      this.endStreamingInterval = null;
     }
     this.isProcessingQueue = false;
     this.accumulatedHTML = '';
@@ -288,6 +294,7 @@ export class AnimationController {
    */
   endStreaming() {
     const element = document.querySelector(SELECTORS.AI_RESPONSE);
+    if (!element) return;
     
     // Wait for queue to finish processing
     const checkQueue = setInterval(() => {
@@ -300,6 +307,9 @@ export class AnimationController {
         }
       }
     }, 100);
+    
+    // Store interval for cleanup
+    this.endStreamingInterval = checkQueue;
   }
   
   /**

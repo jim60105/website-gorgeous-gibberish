@@ -270,15 +270,11 @@ export class ChatManager {
     const responseElement = this.aiResponseElement;
     if (!responseElement) return;
     
-    let fullContent = '';
-    
     // Clear queue and start fresh
     this.animationController.clearQueue();
     
     await this.openAIService.sendStreamingMessage(messages, {
       onChunk: (chunk, fullText) => {
-        fullContent = fullText;
-        
         // Add chunk to FIFO queue (rate-limited at 5 chars/sec)
         this.animationController.appendText(chunk);
         
