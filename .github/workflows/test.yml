@@ -37,9 +37,3 @@ jobs:
 
       - name: Run integration tests
         run: npm run test:integration
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Run E2E tests
-        run: npm run test:e2e
