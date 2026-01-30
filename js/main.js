@@ -37,6 +37,9 @@ function initializeApp() {
     // Initialize input component
     inputComponent = new InputComponent(chatManager);
     
+    // Connect input component to chat manager
+    chatManager.setInputComponent(inputComponent);
+    
     // Initialize help modal
     // Already initialized as singleton in helpModal
     

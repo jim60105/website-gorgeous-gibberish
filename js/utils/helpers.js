@@ -35,3 +35,59 @@ export function truncateText(text, maxLength) {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
 }
+
+/**
+ * Debounce a function to limit its execution rate
+ * @param {Function} func - Function to debounce
+ * @param {number} wait - Wait time in milliseconds
+ * @returns {Function} Debounced function
+ */
+export function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+/**
+ * Throttle a function to ensure it executes at most once per interval
+ * Unlike debounce, throttle guarantees execution at regular intervals
+ * @param {Function} func - Function to throttle
+ * @param {number} limit - Minimum time between executions in milliseconds
+ * @returns {Function} Throttled function
+ */
+export function throttle(func, limit) {
+  let inThrottle;
+  let lastFunc;
+  let lastRan;
+  
+  return function executedFunction(...args) {
+    const context = this;
+    
+    if (!inThrottle) {
+      // First call or after cooldown - execute immediately
+      func.apply(context, args);
+      lastRan = Date.now();
+      inThrottle = true;
+      
+      // Reset throttle flag after limit period
+      setTimeout(() => {
+        inThrottle = false;
+      }, limit);
+    } else {
+      // During throttle period - schedule for later
+      clearTimeout(lastFunc);
+      lastFunc = setTimeout(() => {
+        if ((Date.now() - lastRan) >= limit) {
+          func.apply(context, args);
+          lastRan = Date.now();
+        }
+      }, limit - (Date.now() - lastRan));
+    }
+  };
+}

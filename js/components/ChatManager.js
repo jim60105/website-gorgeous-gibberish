@@ -12,6 +12,7 @@ import { errorRecovery } from '../services/ErrorRecovery.js';
 import { errorLogger } from '../services/ErrorLogger.js';
 import { networkMonitor } from '../services/NetworkMonitor.js';
 import { TimeoutHandler, API_TIMEOUT } from '../services/TimeoutHandler.js';
+import { throttle } from '../utils/helpers.js';
 
 export class ChatManager {
   constructor(animationController) {
@@ -32,10 +33,25 @@ export class ChatManager {
     // Services
     this.openAIService = null;
     
+    // Component references
+    this.inputComponent = null;
+    
     // Retry configuration
     this.maxRetries = 2;
     
+    // Create throttled scroll function (max once per second)
+    // Use throttle instead of debounce to ensure scroll happens during streaming
+    this.throttledScrollToBottom = throttle(() => this.scrollToBottom(), 1000);
+    
     this.init();
+  }
+  
+  /**
+   * Set the input component reference
+   * @param {InputComponent} inputComponent - Input component instance
+   */
+  setInputComponent(inputComponent) {
+    this.inputComponent = inputComponent;
   }
   
   /**
@@ -267,7 +283,7 @@ export class ChatManager {
       requestAnimationFrame(() => {
         this.clearStreamingLoader();
         responseElement.textContent = fullContent;
-        this.scrollToBottom();
+        this.throttledScrollToBottom();
         pendingContent = '';
         updateScheduled = false;
       });
@@ -362,13 +378,25 @@ export class ChatManager {
   }
 
   /**
-   * Scroll response container to bottom
+   * Scroll to bottom of the page during streaming
+   * Uses auto behavior (not smooth) to avoid lag during real-time streaming
    */
   scrollToBottom() {
-    const container = document.querySelector('#ai-response-container');
-    if (container) {
-      container.scrollTop = container.scrollHeight;
+    // Method 1: Scroll the window to ensure AI response is visible
+    // Use 'nearest' instead of 'end' to prevent content from being covered by fixed footer
+    const aiResponse = document.querySelector('#ai-response');
+    if (aiResponse) {
+      aiResponse.scrollIntoView({ behavior: 'auto', block: 'nearest' });
     }
+    
+    // Method 2: Additionally scroll to the absolute bottom to show latest content
+    // Add a small delay to ensure the content has been rendered
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'auto'
+      });
+    });
   }
   
   /**
@@ -447,7 +475,12 @@ export class ChatManager {
     // Transition back to initial layout
     this.animationController.transitionToInitial();
     
-    console.log('Conversation reset');
+    // Prefill a new random phrase
+    if (this.inputComponent) {
+      this.inputComponent.prefillRandomPhrase();
+    }
+    
+    console.log('Conversation reset with new random phrase');
   }
   
   /**
