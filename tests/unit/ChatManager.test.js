@@ -39,6 +39,8 @@ describe('ChatManager', () => {
       transitionToInitial: jest.fn().mockResolvedValue(undefined),
       appendText: jest.fn().mockResolvedValue(undefined),
       endStreaming: jest.fn(),
+      clearQueue: jest.fn(),
+      stopQueueProcessing: jest.fn(),
       currentState: 'initial',
     };
     

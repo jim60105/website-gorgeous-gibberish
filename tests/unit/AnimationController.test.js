@@ -230,13 +230,18 @@ describe('AnimationController', () => {
   });
   
   describe('appendText', () => {
-    test('should append text to response element', async () => {
+    test('should append text to queue for processing', async () => {
       const element = document.querySelector('#ai-response');
-      element.textContent = 'Hello';
+      element.innerHTML = 'Hello';
       
       await animationController.appendText(' World');
       
-      expect(element.textContent).toBe('Hello World');
+      // Text should be in the queue, not yet displayed
+      expect(animationController.contentQueue.length).toBeGreaterThan(0);
+      expect(animationController.isProcessingQueue).toBe(true);
+      
+      // Clean up
+      animationController.stopQueueProcessing();
     });
     
     test('should add streaming cursor class', async () => {
@@ -245,17 +250,27 @@ describe('AnimationController', () => {
       await animationController.appendText('test');
       
       expect(element.classList.contains('streaming-cursor')).toBe(true);
+      
+      // Clean up
+      animationController.stopQueueProcessing();
     });
   });
   
   describe('endStreaming', () => {
-    test('should remove streaming cursor', () => {
+    test('should remove streaming cursor after queue finishes', (done) => {
       const element = document.querySelector('#ai-response');
       element.classList.add('streaming-cursor');
       
+      // Make sure queue is empty
+      animationController.contentQueue = [];
+      
       animationController.endStreaming();
       
-      expect(element.classList.contains('streaming-cursor')).toBe(false);
+      // Wait for the check interval to run
+      setTimeout(() => {
+        expect(element.classList.contains('streaming-cursor')).toBe(false);
+        done();
+      }, 200);
     });
   });
   

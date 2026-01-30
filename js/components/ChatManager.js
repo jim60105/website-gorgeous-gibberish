@@ -220,7 +220,7 @@ export class ChatManager {
     try {
       // Clear previous response
       if (this.aiResponseElement) {
-        this.aiResponseElement.textContent = '';
+        this.aiResponseElement.innerHTML = '';
         this.aiResponseElement.classList.add('streaming-cursor');
       }
       
@@ -252,8 +252,7 @@ export class ChatManager {
       // Display error to user
       if (this.aiResponseElement) {
         this.aiResponseElement.classList.remove('streaming-cursor');
-        this.aiResponseElement.textContent = `發生錯誤：${error.message}`;
-        this.aiResponseElement.classList.add('text-red-400');
+        this.aiResponseElement.innerHTML = `<span class="text-red-400">發生錯誤：${this.escapeHtml(error.message)}</span>`;
       }
       
       throw error;
@@ -264,44 +263,36 @@ export class ChatManager {
   }
 
   /**
-   * Optimized streaming with batched updates
+   * Optimized streaming with batched updates and rate limiting
    * @param {Array} messages - Messages array
    */
   async optimizedStreamResponse(messages) {
     const responseElement = this.aiResponseElement;
     if (!responseElement) return;
     
-    let pendingContent = '';
-    let updateScheduled = false;
-    let fullContent = '';
+    // Clear queue and start fresh
+    this.animationController.clearQueue();
     
-    // Batch DOM updates for better performance
-    const scheduleUpdate = () => {
-      if (updateScheduled) return;
-      
-      updateScheduled = true;
-      requestAnimationFrame(() => {
-        this.clearStreamingLoader();
-        responseElement.textContent = fullContent;
-        this.throttledScrollToBottom();
-        pendingContent = '';
-        updateScheduled = false;
-      });
-    };
+    let isFirstChunk = true;
     
     await this.openAIService.sendStreamingMessage(messages, {
       onChunk: (chunk, fullText) => {
-        fullContent = fullText;
-        pendingContent += chunk;
-        scheduleUpdate();
+        // Clear loading indicator before first chunk
+        if (isFirstChunk) {
+          this.clearStreamingLoader();
+          isFirstChunk = false;
+        }
+        
+        // Add chunk to FIFO queue (rate-limited at 10 chars/sec)
+        this.animationController.appendText(chunk);
+        
+        // Scroll to bottom periodically
+        this.throttledScrollToBottom();
       },
       
       onComplete: (finalContent) => {
-        // Ensure final content is displayed
-        if (responseElement) {
-          responseElement.textContent = finalContent;
-          responseElement.classList.remove('streaming-cursor');
-        }
+        // Signal end of streaming (waits for queue to finish)
+        this.animationController.endStreaming();
         
         // Add to conversation history
         this.addAIResponse(finalContent);
@@ -316,9 +307,9 @@ export class ChatManager {
         if (!shouldRetry) {
           // Display error
           if (responseElement) {
+            this.animationController.stopQueueProcessing();
             responseElement.classList.remove('streaming-cursor');
-            responseElement.textContent = `發生錯誤：${error.message}`;
-            responseElement.classList.add('text-red-400');
+            responseElement.innerHTML = `<span class="text-red-400">發生錯誤：${this.escapeHtml(error.message)}</span>`;
           }
           throw error;
         }
@@ -488,12 +479,17 @@ export class ChatManager {
    */
   clearAIResponse() {
     if (this.aiResponseElement) {
-      this.aiResponseElement.textContent = '';
+      this.aiResponseElement.innerHTML = '';
     }
     if (this.topicDisplayElement) {
       this.topicDisplayElement.textContent = '';
       this.topicDisplayElement.classList.remove('opacity-100');
       this.topicDisplayElement.classList.add('opacity-0');
+    }
+    
+    // Clear the animation queue
+    if (this.animationController) {
+      this.animationController.clearQueue();
     }
   }
   
@@ -567,5 +563,16 @@ export class ChatManager {
    */
   getCurrentTopic() {
     return this.currentTopic;
+  }
+  
+  /**
+   * Escape HTML special characters for safe display
+   * @param {string} text - Text to escape
+   * @returns {string} Escaped text
+   */
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 }
