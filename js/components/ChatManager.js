@@ -125,7 +125,7 @@ export class ChatManager {
     
     // Check limit
     if (this.hasReachedLimit()) {
-      const error = new Error('已達到對話次數上限，請點擊「重新開始」開始新對話');
+      const error = new Error('已達到對話次數上限，請點擊「焚卷重衍」開始新對話');
       toast.warning(error.message);
       throw error;
     }
@@ -332,7 +332,7 @@ export class ChatManager {
   showStreamingLoader() {
     const responseElement = this.aiResponseElement;
     if (responseElement) {
-      responseElement.innerHTML = '<span class="text-purple-400">思考中...</span>';
+      responseElement.innerHTML = '<span class="text-purple-400">靈光沸騰...</span>';
     }
   }
 
@@ -341,7 +341,7 @@ export class ChatManager {
    */
   clearStreamingLoader() {
     const responseElement = this.aiResponseElement;
-    if (responseElement && responseElement.innerHTML.includes('思考中')) {
+    if (responseElement && responseElement.innerHTML.includes('靈光沸騰')) {
       responseElement.innerHTML = '';
     }
   }

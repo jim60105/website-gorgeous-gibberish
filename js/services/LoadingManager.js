@@ -113,7 +113,7 @@ export class LoadingManager {
           <span class="loading-dots">
             <span></span><span></span><span></span>
           </span>
-          思考中...
+          靈光沸騰...
         </span>
       `;
     }

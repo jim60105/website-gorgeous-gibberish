@@ -17,7 +17,7 @@ export class LimitWarning {
     if (remaining === 1) {
       toast.warning('這是最後一次對話機會');
     } else if (remaining === 0) {
-      toast.info('已達對話上限，請點擊「重新開始」');
+      toast.info('已達對話上限，請點擊「焚卷重衍」');
     }
   }
   
@@ -42,7 +42,7 @@ export class LimitWarning {
       conversation: {
         title: '已達對話上限',
         description: '每次對話最多可進行 5 回合',
-        action: '重新開始',
+        action: '焚卷重衍',
         actionCallback: () => window.chatManager?.resetConversation(),
       },
     };

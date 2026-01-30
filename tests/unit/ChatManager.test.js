@@ -29,7 +29,7 @@ describe('ChatManager', () => {
       <div id="conversation-dots"></div>
       <div id="ai-response"></div>
       <div id="topic-display"></div>
-      <button id="reset-button">重新開始</button>
+      <button id="reset-button">焚卷重衍</button>
       <div id="ai-response-container"></div>
     `;
     
@@ -292,7 +292,7 @@ describe('ChatManager', () => {
   
   describe('updateTopicDisplay', () => {
     test('should update topic text', () => {
-      const topic = '測試主題';
+      const topic = '測試宙軸';
       chatManager.updateTopicDisplay(topic);
       
       expect(chatManager.topicDisplayElement.textContent).toBe(topic);

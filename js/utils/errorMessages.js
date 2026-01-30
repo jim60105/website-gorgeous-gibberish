@@ -56,7 +56,7 @@ export const ERROR_MESSAGES = {
   CONVERSATION_LIMIT: {
     title: '已達對話上限',
     description: '每次對話最多 5 則訊息',
-    action: '重新開始',
+    action: '焚卷重衍',
     icon: '🔄',
   },
   

@@ -48,7 +48,7 @@ export class LoadingExperience {
       // to avoid flash for fast responses
       return setTimeout(() => {
         if (!response.textContent) {
-          response.innerHTML = `<span class="text-text-muted animate-pulse">思考中</span>`;
+          response.innerHTML = `<span class="text-text-muted animate-pulse">靈光沸騰</span>`;
         }
       }, 200);
     }

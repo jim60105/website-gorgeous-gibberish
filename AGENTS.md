@@ -350,7 +350,7 @@ Defined in [tailwind.config.js](tailwind.config.js#L7-L14):
 
 - **Message Limit**: 5 messages per conversation
 - **Visual Progress**: Dot indicators (● = used, ○ = remaining)
-- **Reset Function**: "重新開始" button clears state and returns to initial view
+- **Reset Function**: "焚卷重衍" button clears state and returns to initial view
 - **History Tracking**: Maintains conversation context for future API integration
 
 ### Visual Design Philosophy
