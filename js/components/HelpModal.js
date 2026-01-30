@@ -25,10 +25,10 @@ export class HelpModal {
       plain: {
         title: '使用說明',
         section1Title: '如何使用',
-        section1Content: '輸入您的想法（最多 20 字），按 Enter 或點擊傳送按鈕，AI 會為您生成絢爛的回應。',
+        section1Content: '輸入您的想法（最多 20 字），按 Enter 或點擊傳送按鈕，AI 會為您生成絢燦回應。',
         section2Title: '對話限制',
-        section2Content: '每次對話最多可進行 5 個回合。達到上限後可以點擊「重新開始」開始新對話。',
-        closeText: '了解了',
+        section2Content: '每次對話最多可進行 5 個回合。達到上限後可以點擊「焚卷重衍」重新開始新對話。',
+        closeText: '了解',
         toggleText: '絢爛'
       }
     };
