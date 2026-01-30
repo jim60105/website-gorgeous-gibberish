@@ -58,4 +58,4 @@ export class TimeoutHandler {
 }
 
 // API timeout constant
-export const API_TIMEOUT = 90000; // 90 seconds
+export const API_TIMEOUT = 120000; // 120 seconds
