@@ -127,33 +127,33 @@ describe('HTML Rendering and Rate Limiting', () => {
       expect(animationController.isProcessingQueue).toBe(false);
     });
     
-    test('should process queue at correct rate (200ms per item)', (done) => {
+    test('should process queue at correct rate (100ms per item)', (done) => {
       const element = document.querySelector('#ai-response');
       animationController.enqueueContent('ABC');
       
       animationController.startQueueProcessing(element);
       
-      // After 100ms, nothing should be displayed yet
+      // After 50ms, nothing should be displayed yet
       setTimeout(() => {
         expect(element.innerHTML).toBe('');
-      }, 100);
+      }, 50);
       
-      // After 250ms, first character should be displayed
+      // After 120ms, first character should be displayed
       setTimeout(() => {
         expect(element.innerHTML).toBe('A');
-      }, 250);
+      }, 120);
       
-      // After 450ms, second character should be displayed
+      // After 220ms, second character should be displayed
       setTimeout(() => {
         expect(element.innerHTML).toBe('AB');
-      }, 450);
+      }, 220);
       
-      // After 650ms, all characters should be displayed
+      // After 320ms, all characters should be displayed
       setTimeout(() => {
         expect(element.innerHTML).toBe('ABC');
         animationController.stopQueueProcessing();
         done();
-      }, 650);
+      }, 320);
     }, 10000);
   });
   
@@ -237,7 +237,7 @@ describe('HTML Rendering and Rate Limiting', () => {
   });
   
   describe('Rate Limiting', () => {
-    test('should respect 200ms interval between characters', (done) => {
+    test('should respect 100ms interval between characters', (done) => {
       const element = document.querySelector('#ai-response');
       const startTime = Date.now();
       
@@ -247,32 +247,32 @@ describe('HTML Rendering and Rate Limiting', () => {
       // Wait for processing to complete
       setTimeout(() => {
         const elapsed = Date.now() - startTime;
-        // Should take at least 400ms for 2 characters (200ms each)
-        expect(elapsed).toBeGreaterThanOrEqual(380); // Allow small margin
+        // Should take at least 200ms for 2 characters (100ms each)
+        expect(elapsed).toBeGreaterThanOrEqual(180); // Allow small margin
         
         animationController.stopQueueProcessing();
         done();
-      }, 500);
+      }, 300);
     }, 10000);
     
-    test('should process approximately 5 characters per second', (done) => {
+    test('should process approximately 10 characters per second', (done) => {
       const element = document.querySelector('#ai-response');
       const startTime = Date.now();
       
-      // Enqueue 5 characters
-      animationController.enqueueContent('12345');
+      // Enqueue 10 characters
+      animationController.enqueueContent('1234567890');
       animationController.startQueueProcessing(element);
       
       setTimeout(() => {
         const elapsed = Date.now() - startTime;
-        // 5 characters at 200ms each = 1000ms
-        // Verify rate is roughly 5 chars/sec (allow reasonable margin)
+        // 10 characters at 100ms each = 1000ms
+        // Verify rate is roughly 10 chars/sec (allow reasonable margin)
         expect(elapsed).toBeGreaterThanOrEqual(980);
         // Just check it doesn't complete too fast (< 900ms would be wrong)
         
         animationController.stopQueueProcessing();
         done();
-      }, 1300);
+      }, 1200);
     }, 20000);
   });
   

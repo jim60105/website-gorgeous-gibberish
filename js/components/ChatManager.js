@@ -273,9 +273,17 @@ export class ChatManager {
     // Clear queue and start fresh
     this.animationController.clearQueue();
     
+    let isFirstChunk = true;
+    
     await this.openAIService.sendStreamingMessage(messages, {
       onChunk: (chunk, fullText) => {
-        // Add chunk to FIFO queue (rate-limited at 5 chars/sec)
+        // Clear loading indicator before first chunk
+        if (isFirstChunk) {
+          this.clearStreamingLoader();
+          isFirstChunk = false;
+        }
+        
+        // Add chunk to FIFO queue (rate-limited at 10 chars/sec)
         this.animationController.appendText(chunk);
         
         // Scroll to bottom periodically

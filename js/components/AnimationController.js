@@ -11,6 +11,7 @@ export class AnimationController {
     
     // FIFO queue for rate-limited output
     this.contentQueue = [];
+    this.queueIndex = 0; // Track current position in queue (avoids shift() O(n) cost)
     this.isProcessingQueue = false;
     this.queueInterval = null;
     this.endStreamingInterval = null;
@@ -168,7 +169,7 @@ export class AnimationController {
   }
 
   /**
-   * Start processing the FIFO queue at 200ms intervals (5 chars/sec)
+   * Start processing the FIFO queue at 100ms intervals (10 chars/sec)
    * @param {HTMLElement} element - Target element
    */
   startQueueProcessing(element) {
@@ -179,14 +180,14 @@ export class AnimationController {
     this.accumulatedHTML = element.innerHTML;
     
     this.queueInterval = setInterval(() => {
-      if (this.contentQueue.length === 0) {
+      if (this.queueIndex >= this.contentQueue.length) {
         return;
       }
       
-      const token = this.contentQueue.shift();
+      const token = this.contentQueue[this.queueIndex++];
       this.accumulatedHTML += token.content;
       element.innerHTML = this.accumulatedHTML;
-    }, 200); // 200ms = 5 characters per second
+    }, 100); // 100ms = 10 characters per second
   }
 
   /**
@@ -202,6 +203,7 @@ export class AnimationController {
       this.endStreamingInterval = null;
     }
     this.isProcessingQueue = false;
+    this.queueIndex = 0;
     this.accumulatedHTML = '';
   }
 
@@ -219,6 +221,7 @@ export class AnimationController {
    */
   clearQueue() {
     this.contentQueue = [];
+    this.queueIndex = 0;
     this.stopQueueProcessing();
   }
 
@@ -298,7 +301,7 @@ export class AnimationController {
     
     // Wait for queue to finish processing
     const checkQueue = setInterval(() => {
-      if (this.contentQueue.length === 0) {
+      if (this.queueIndex >= this.contentQueue.length) {
         clearInterval(checkQueue);
         this.stopQueueProcessing();
         
