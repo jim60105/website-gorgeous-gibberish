@@ -9,6 +9,12 @@ export class AnimationController {
     this.isAnimating = false;
     this.currentState = 'initial'; // 'initial' or 'chat'
     
+    // FIFO queue for rate-limited output
+    this.contentQueue = [];
+    this.isProcessingQueue = false;
+    this.queueInterval = null;
+    this.accumulatedHTML = ''; // Accumulated HTML string
+    
     this.init();
   }
   
@@ -124,35 +130,129 @@ export class AnimationController {
   }
   
   /**
-   * Display text with typewriter effect
+   * Parse HTML content into tokens (text and HTML tags)
+   * @param {string} content - Content with HTML tags
+   * @returns {Array} Array of tokens
+   */
+  parseHTMLTokens(content) {
+    const tokens = [];
+    let currentPos = 0;
+    const tagRegex = /<[^>]+>/g;
+    let match;
+    
+    while ((match = tagRegex.exec(content)) !== null) {
+      // Add text before tag
+      if (match.index > currentPos) {
+        const textBefore = content.substring(currentPos, match.index);
+        // Split text into individual characters
+        for (const char of textBefore) {
+          tokens.push({ type: 'char', content: char });
+        }
+      }
+      
+      // Add the HTML tag as a single token
+      tokens.push({ type: 'tag', content: match[0] });
+      currentPos = match.index + match[0].length;
+    }
+    
+    // Add remaining text
+    if (currentPos < content.length) {
+      const remainingText = content.substring(currentPos);
+      for (const char of remainingText) {
+        tokens.push({ type: 'char', content: char });
+      }
+    }
+    
+    return tokens;
+  }
+
+  /**
+   * Start processing the FIFO queue at 200ms intervals (5 chars/sec)
    * @param {HTMLElement} element - Target element
-   * @param {string} text - Text to display
-   * @param {number} speed - Milliseconds per character (default 30)
+   */
+  startQueueProcessing(element) {
+    if (this.isProcessingQueue) return;
+    
+    this.isProcessingQueue = true;
+    this.accumulatedHTML = element.innerHTML;
+    
+    this.queueInterval = setInterval(() => {
+      if (this.contentQueue.length === 0) {
+        return;
+      }
+      
+      const token = this.contentQueue.shift();
+      this.accumulatedHTML += token.content;
+      element.innerHTML = this.accumulatedHTML;
+    }, 200); // 200ms = 5 characters per second
+  }
+
+  /**
+   * Stop processing the FIFO queue
+   */
+  stopQueueProcessing() {
+    if (this.queueInterval) {
+      clearInterval(this.queueInterval);
+      this.queueInterval = null;
+    }
+    this.isProcessingQueue = false;
+    this.accumulatedHTML = '';
+  }
+
+  /**
+   * Add content to the FIFO queue
+   * @param {string} content - Content to add (may contain HTML)
+   */
+  enqueueContent(content) {
+    const tokens = this.parseHTMLTokens(content);
+    this.contentQueue.push(...tokens);
+  }
+
+  /**
+   * Clear the FIFO queue
+   */
+  clearQueue() {
+    this.contentQueue = [];
+    this.stopQueueProcessing();
+  }
+
+  /**
+   * Display text with typewriter effect (HTML-safe)
+   * @param {HTMLElement} element - Target element
+   * @param {string} text - Text to display (may contain HTML)
+   * @param {number} speed - Milliseconds per character (default 200 for rate limit)
    * @param {Function} onChar - Callback for each character
    */
-  async typewriterEffect(element, text, speed = 30, onChar = null) {
+  async typewriterEffect(element, text, speed = 200, onChar = null) {
     if (!element || !text) return;
     
     const adjustedSpeed = this.getAnimationDuration(speed);
     
-    element.textContent = '';
+    element.innerHTML = '';
     this.showCursor(element);
     
-    for (let i = 0; i < text.length; i++) {
-      const char = text[i];
-      element.textContent += char;
+    // Parse HTML tokens
+    const tokens = this.parseHTMLTokens(text);
+    let accumulatedHTML = '';
+    
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      accumulatedHTML += token.content;
+      element.innerHTML = accumulatedHTML;
       
       // Callback for custom handling
       if (onChar) {
-        onChar(char, i, text.length);
+        onChar(token.content, i, tokens.length);
       }
       
-      // Variable speed: pause longer on punctuation
+      // Variable speed: pause longer on punctuation (only for characters, not tags)
       let delay = adjustedSpeed;
-      if ('，。！？、'.includes(char)) {
-        delay = adjustedSpeed * 3;
-      } else if (',.!?;:'.includes(char)) {
-        delay = adjustedSpeed * 2;
+      if (token.type === 'char') {
+        if ('，。！？、'.includes(token.content)) {
+          delay = adjustedSpeed * 3;
+        } else if (',.!?;:'.includes(token.content)) {
+          delay = adjustedSpeed * 2;
+        }
       }
       
       await this.delay(delay);
@@ -162,8 +262,8 @@ export class AnimationController {
   }
   
   /**
-   * Append text character by character (for streaming)
-   * @param {string} text - Text chunk to append
+   * Append text character by character (for streaming with FIFO queue)
+   * @param {string} text - Text chunk to append (may contain HTML)
    */
   async appendText(text) {
     const element = document.querySelector(SELECTORS.AI_RESPONSE);
@@ -174,13 +274,13 @@ export class AnimationController {
       element.classList.add('streaming-cursor');
     }
     
-    // Append each character with minimal delay
-    for (const char of text) {
-      element.textContent += char;
-      
-      // Small delay for visual effect (can be adjusted)
-      await this.delay(10);
+    // Start queue processing if not already started
+    if (!this.isProcessingQueue) {
+      this.startQueueProcessing(element);
     }
+    
+    // Add content to FIFO queue
+    this.enqueueContent(text);
   }
   
   /**
@@ -188,9 +288,18 @@ export class AnimationController {
    */
   endStreaming() {
     const element = document.querySelector(SELECTORS.AI_RESPONSE);
-    if (element) {
-      element.classList.remove('streaming-cursor');
-    }
+    
+    // Wait for queue to finish processing
+    const checkQueue = setInterval(() => {
+      if (this.contentQueue.length === 0) {
+        clearInterval(checkQueue);
+        this.stopQueueProcessing();
+        
+        if (element) {
+          element.classList.remove('streaming-cursor');
+        }
+      }
+    }, 100);
   }
   
   /**
