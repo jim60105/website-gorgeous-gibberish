@@ -305,6 +305,10 @@ export class AnimationController {
         clearInterval(checkQueue);
         this.stopQueueProcessing();
         
+        // Clear processed queue to free memory
+        this.contentQueue = [];
+        this.queueIndex = 0;
+        
         if (element) {
           element.classList.remove('streaming-cursor');
         }
