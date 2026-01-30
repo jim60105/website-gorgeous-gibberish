@@ -118,29 +118,29 @@ All external dependencies are mocked:
 
 ```bash
 # Jest Tests
-npm test                    # All unit + integration tests
-npm run test:unit           # Unit tests only
-npm run test:integration    # Integration tests only
-npm run test:watch          # Watch mode
-npm run test:coverage       # With coverage report
+pnpm test                    # All unit + integration tests
+pnpm run test:unit           # Unit tests only
+pnpm run test:integration    # Integration tests only
+pnpm run test:watch          # Watch mode
+pnpm run test:coverage       # With coverage report
 
 # Playwright Tests
-npm run test:e2e            # All E2E tests
-npm run test:e2e:ui         # Interactive UI mode
-npm run test:e2e:headed     # With visible browser
-npm run test:e2e:debug      # Debug mode
+pnpm run test:e2e            # All E2E tests
+pnpm run test:e2e:ui         # Interactive UI mode
+pnpm run test:e2e:headed     # With visible browser
+pnpm run test:e2e:debug      # Debug mode
 ```
 
 ### Specific Test Files
 
 ```bash
 # Jest
-npm test -- tests/unit/InputComponent.test.js
-npm test -- tests/integration/animations.test.js
+pnpm test -- tests/unit/InputComponent.test.js
+pnpm test -- tests/integration/animations.test.js
 
 # Playwright
-npx playwright test tests/e2e/responsive.spec.js
-npx playwright test tests/e2e/user-flow.spec.js --project=chromium
+pnpm exec playwright test tests/e2e/responsive.spec.js
+pnpm exec playwright test tests/e2e/user-flow.spec.js --project=chromium
 ```
 
 ## Documentation

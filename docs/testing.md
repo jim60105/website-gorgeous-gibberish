@@ -14,30 +14,30 @@ All tests run without requiring a valid API key - external dependencies are prop
 ### Prerequisites
 
 ```bash
-npm install
+pnpm install
 # For E2E tests, also install Playwright browsers:
-npx playwright install
+pnpm exec playwright install
 ```
 
 ### Test Commands
 
 ```bash
 # Unit and Integration Tests (Jest)
-npm test                    # Run all Jest tests
-npm run test:watch          # Watch mode
-npm run test:coverage       # With coverage report
-npm run test:unit           # Unit tests only
-npm run test:integration    # Integration tests only
+pnpm test                    # Run all Jest tests
+pnpm run test:watch          # Watch mode
+pnpm run test:coverage       # With coverage report
+pnpm run test:unit           # Unit tests only
+pnpm run test:integration    # Integration tests only
 
 # E2E Tests (Playwright)
-npm run test:e2e            # Run all E2E tests
-npm run test:e2e:ui         # Interactive UI mode
-npm run test:e2e:headed     # With visible browser
-npm run test:e2e:debug      # Debug mode
+pnpm run test:e2e            # Run all E2E tests
+pnpm run test:e2e:ui         # Interactive UI mode
+pnpm run test:e2e:headed     # With visible browser
+pnpm run test:e2e:debug      # Debug mode
 
 # Run specific test file
-npm test -- tests/unit/InputComponent.test.js
-npx playwright test tests/e2e/responsive.spec.js
+pnpm test -- tests/unit/InputComponent.test.js
+pnpm exec playwright test tests/e2e/responsive.spec.js
 ```
 
 ## Test Structure

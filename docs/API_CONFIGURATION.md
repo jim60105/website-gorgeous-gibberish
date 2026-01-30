@@ -106,7 +106,7 @@ To verify your configuration is working:
 
 1. Start the development server:
 ```bash
-npm run start
+pnpm run start
 ```
 
 2. Open the browser at `http://localhost:3000`

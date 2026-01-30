@@ -10,29 +10,29 @@ End-to-end tests using Playwright test the application in real browsers, simulat
 
 ```bash
 # Install dependencies (includes Playwright)
-npm install
+pnpm install
 
 # Install browser binaries
-npx playwright install
+pnpm exec playwright install
 ```
 
 ### Test Commands
 
 ```bash
 # Run all E2E tests (headless)
-npm run test:e2e
+pnpm run test:e2e
 
 # Run tests with UI mode (interactive)
-npm run test:e2e:ui
+pnpm run test:e2e:ui
 
 # Run tests with visible browser
-npm run test:e2e:headed
+pnpm run test:e2e:headed
 
 # Run tests in debug mode
-npm run test:e2e:debug
+pnpm run test:e2e:debug
 
 # Run specific test file
-npx playwright test tests/e2e/responsive.spec.js
+pnpm exec playwright test tests/e2e/responsive.spec.js
 ```
 
 ## Test Structure
@@ -191,7 +191,7 @@ Reports include:
 ### Interactive Mode
 
 ```bash
-npm run test:e2e:ui
+pnpm run test:e2e:ui
 ```
 
 Opens Playwright UI with:
@@ -203,7 +203,7 @@ Opens Playwright UI with:
 ### Debug Mode
 
 ```bash
-npm run test:e2e:debug
+pnpm run test:e2e:debug
 ```
 
 Opens Playwright Inspector:

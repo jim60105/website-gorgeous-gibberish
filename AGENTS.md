@@ -21,7 +21,7 @@
 
 ### Development Tools
 
-- **Package Manager**: npm
+- **Package Manager**: pnpm
 - **CSS Build**: Tailwind CLI
 - **Dev Server**: live-server
 - **Language**: 正體中文 (Traditional Chinese) for UI/comments
@@ -122,25 +122,25 @@ website-gorgeous-gibberish/
 
 ```bash
 # Install dependencies (always run first)
-npm install
+pnpm install
 
 # Build CSS (required before first run)
-npm run build:css
+pnpm run build:css
 
 # Development workflow
-npm run start                  # Starts both CSS watcher and dev server
+pnpm run start                  # Starts both CSS watcher and dev server
 
 # Individual commands
-npm run watch:css             # Watch CSS changes
-npm run dev                   # Start live-server on port 3000
+pnpm run watch:css             # Watch CSS changes
+pnpm run dev                   # Start live-server on port 3000
 ```
 
 ### Build Process
 
-1. **Initial Setup**: Run `npm install` to install dependencies
+1. **Initial Setup**: Run `pnpm install` to install dependencies
 2. **CSS Compilation**: Tailwind CLI processes `src/styles.css` → `dist/styles.css`
 3. **Development**: Live-server serves root directory with hot reload
-4. **Production**: Run `npm run build:css` for minified output
+4. **Production**: Run `pnpm run build:css` for minified output
 
 **Important**: Always ensure CSS is built before testing. The `dist/styles.css` file must exist for the app to load correctly.
 
@@ -148,20 +148,20 @@ npm run dev                   # Start live-server on port 3000
 
 ```bash
 # Unit & Integration Tests (Jest)
-npm test                    # Run all Jest tests
-npm run test:unit           # Unit tests only
-npm run test:integration    # Integration tests only
-npm run test:watch          # Watch mode
-npm run test:coverage       # With coverage report
+pnpm test                    # Run all Jest tests
+pnpm run test:unit           # Unit tests only
+pnpm run test:integration    # Integration tests only
+pnpm run test:watch          # Watch mode
+pnpm run test:coverage       # With coverage report
 
 # E2E Tests (Playwright)
-npm run test:e2e            # Run all E2E tests
-npm run test:e2e:ui         # Interactive UI mode
-npm run test:e2e:headed     # With visible browser
-npm run test:e2e:debug      # Debug mode
+pnpm run test:e2e            # Run all E2E tests
+pnpm run test:e2e:ui         # Interactive UI mode
+pnpm run test:e2e:headed     # With visible browser
+pnpm run test:e2e:debug      # Debug mode
 
 # First-time E2E setup
-npx playwright install       # Install browser binaries
+pnpm exec playwright install       # Install browser binaries
 ```
 
 **Test Coverage**: 215 tests total (158 unit + 31 integration + 26 E2E)  
@@ -439,11 +439,11 @@ xl: 1280px  // Standard desktops
 1. **Check Tailwind first**: Can this be done with utilities?
 2. **Extend [tailwind.config.js](tailwind.config.js)**: Add to `theme.extend` for reusable tokens
 3. **Add to [src/styles.css](src/styles.css)**: Only for complex patterns not achievable with Tailwind
-4. **Run `npm run watch:css`**: Ensure changes compile correctly
+4. **Run `pnpm run watch:css`**: Ensure changes compile correctly
 
 ### Testing Changes
 
-1. Ensure `npm run start` is running
+1. Ensure `pnpm run start` is running
 2. Open browser to `http://localhost:3000`
 3. Test in Chrome DevTools mobile emulation for responsive behavior
 4. Check console for errors
@@ -461,7 +461,7 @@ xl: 1280px  // Standard desktops
 
 - Tailwind CSS configuration with dark theme
 - JavaScript module structure (ES6)
-- Build tools (npm, Tailwind CLI, live-server)
+- Build tools (pnpm, Tailwind CLI, live-server)
 - Design system (colors, typography, animations)
 
 **Issue #3**: ✅ Core component development - **COMPLETE**
@@ -575,7 +575,7 @@ Refer to [.github/instructions/web-design-guideline.instructions.md](.github/ins
 If CSS doesn't load:
 
 1. Check `dist/styles.css` exists
-2. Run `npm run build:css`
+2. Run `pnpm run build:css`
 3. Verify Tailwind config syntax
 4. Check console for compilation errors
 
@@ -588,14 +588,14 @@ If JavaScript errors:
 
 ### Before Committing
 
-- [ ] Run `npm run build:css` for production-ready CSS
-- [ ] Run `npm test` to ensure all unit/integration tests pass
-- [ ] Run `npm run test:e2e` for E2E validation (optional)
+- [ ] Run `pnpm run build:css` for production-ready CSS
+- [ ] Run `pnpm test` to ensure all unit/integration tests pass
+- [ ] Run `pnpm run test:e2e` for E2E validation (optional)
 - [ ] Verify responsive behavior (mobile + desktop)
 - [ ] Check console for warnings/errors
 - [ ] Ensure no dead code or unused imports
 - [ ] Update documentation if adding new features
-- [ ] Check test coverage with `npm run test:coverage`
+- [ ] Check test coverage with `pnpm run test:coverage`
 
 ## Quick Reference
 
@@ -630,12 +630,12 @@ All defined in [js/utils/constants.js](js/utils/constants.js):
 
 | Command | Purpose |
 |---------|--------|
-| `npm test` | Run all Jest tests |
-| `npm run test:unit` | Unit tests only |
-| `npm run test:integration` | Integration tests only |
-| `npm run test:watch` | Watch mode for Jest |
-| `npm run test:coverage` | Jest with coverage report |
-| `npm run test:e2e` | All Playwright E2E tests |
-| `npm run test:e2e:ui` | Playwright interactive mode |
-| `npm run test:e2e:headed` | E2E with visible browser |
-| `npm run test:e2e:debug` | Playwright debug mode |
+| `pnpm test` | Run all Jest tests |
+| `pnpm run test:unit` | Unit tests only |
+| `pnpm run test:integration` | Integration tests only |
+| `pnpm run test:watch` | Watch mode for Jest |
+| `pnpm run test:coverage` | Jest with coverage report |
+| `pnpm run test:e2e` | All Playwright E2E tests |
+| `pnpm run test:e2e:ui` | Playwright interactive mode |
+| `pnpm run test:e2e:headed` | E2E with visible browser |
+| `pnpm run test:e2e:debug` | Playwright debug mode |

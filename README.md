@@ -36,7 +36,7 @@ Think of it as an AI that loves to elaborate. You give it a seed, it grows a gar
 ### Prerequisites
 
 - Node.js (v14 or higher)
-- npm or yarn
+- pnpm (recommended) or npm
 
 ### Installation
 
@@ -48,7 +48,7 @@ cd website-gorgeous-gibberish
 
 2. Install dependencies:
 ```bash
-npm install
+pnpm install
 ```
 
 3. Configure API settings:
@@ -57,41 +57,41 @@ npm install
 
 4. Build CSS:
 ```bash
-npm run build:css
+pnpm run build:css
 ```
 
 5. Start development server:
 ```bash
-npm run start
+pnpm run start
 ```
 
 6. Open browser at `http://localhost:3000`
 
 ### Available Commands
 
-- `npm run build:css` - Build CSS with Tailwind (production)
-- `npm run watch:css` - Watch CSS changes (development)
-- `npm run dev` - Start live-server on port 3000
-- `npm run start` - Watch CSS and start dev server simultaneously
+- `pnpm run build:css` - Build CSS with Tailwind (production)
+- `pnpm run watch:css` - Watch CSS changes (development)
+- `pnpm run dev` - Start live-server on port 3000
+- `pnpm run start` - Watch CSS and start dev server simultaneously
 
 ### Testing Commands
 
 ```bash
 # Unit & Integration Tests
-npm test                    # Run all Jest tests
-npm run test:unit           # Unit tests only
-npm run test:integration    # Integration tests only
-npm run test:watch          # Watch mode
-npm run test:coverage       # With coverage report
+pnpm test                    # Run all Jest tests
+pnpm run test:unit           # Unit tests only
+pnpm run test:integration    # Integration tests only
+pnpm run test:watch          # Watch mode
+pnpm run test:coverage       # With coverage report
 
 # E2E Tests (Playwright)
-npm run test:e2e            # Run all E2E tests
-npm run test:e2e:ui         # Interactive UI mode
-npm run test:e2e:headed     # With visible browser
-npm run test:e2e:debug      # Debug mode
+pnpm run test:e2e            # Run all E2E tests
+pnpm run test:e2e:ui         # Interactive UI mode
+pnpm run test:e2e:headed     # With visible browser
+pnpm run test:e2e:debug      # Debug mode
 
 # First-time E2E setup
-npx playwright install
+pnpm exec playwright install
 ```
 
 **Test Coverage**: 215 tests (158 unit + 31 integration + 26 E2E)
