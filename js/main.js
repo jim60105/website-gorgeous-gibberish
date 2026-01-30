@@ -10,11 +10,20 @@ import { toast } from './components/ToastNotification.js';
 import { helpModal } from './components/HelpModal.js';
 import { networkMonitor } from './services/NetworkMonitor.js';
 import { errorLogger } from './services/ErrorLogger.js';
+import { initializeTracking } from './services/TrackingService.js';
+import { TRACKING_CONFIG } from './config/tracking.js';
 
 // Application state
 let inputComponent;
 let chatManager;
 let animationController;
+
+// Initialize tracking services (early initialization for accurate analytics)
+initializeTracking(
+  TRACKING_CONFIG.GA_TRACKING_ID,
+  TRACKING_CONFIG.CLARITY_TRACKING_ID,
+  TRACKING_CONFIG.CLOUDFLARE_RUM_TOKEN
+);
 
 /**
  * Initialize the application when DOM is ready

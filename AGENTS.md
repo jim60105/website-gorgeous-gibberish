@@ -68,9 +68,11 @@ website-gorgeous-gibberish/
 │   │   └── LimitWarning.js        # Limit warning system
 │   ├── config/                # Configuration
 │   │   ├── phrases.js         # Random phrase presets
-│   │   └── api.js             # OpenAI API configuration
+│   │   ├── api.js             # OpenAI API configuration
+│   │   └── tracking.js        # Analytics tracking configuration
 │   ├── services/              # External services
 │   │   ├── OpenAIService.js   # OpenAI API wrapper (fully functional)
+│   │   ├── TrackingService.js # Analytics tracking service (GA, Clarity, Cloudflare RUM)
 │   │   ├── LoadingManager.js  # Loading state management
 │   │   ├── LoadingExperience.js # Enhanced loading UX
 │   │   ├── ErrorRecovery.js   # Error recovery manager
@@ -316,12 +318,33 @@ Defined in [tailwind.config.js](tailwind.config.js#L7-L14):
 - Stream validation and parsing
 - Conversation history support
 
+#### 5. TrackingService ([js/services/TrackingService.js](js/services/TrackingService.js))
+
+**Status**: ✅ Fully functional  
+**Purpose**: Third-party analytics and tracking integration
+
+**Key Methods**:
+
+- `initializeTracking(gaTrackingId, clarityTrackingId, cloudflareRumToken)` - Initialize all tracking services
+
+**Features**:
+
+- Respects Global Privacy Control (GPC) signal
+- Google Analytics integration (gtag.js)
+- Microsoft Clarity integration
+- Cloudflare RUM (Real User Measurements) integration
+- Privacy-first approach - disables all tracking if GPC is enabled
+- Configuration stored in [js/config/tracking.js](js/config/tracking.js)
+
+**Privacy**:
+When users have Global Privacy Control enabled, all tracking scripts are disabled and a console message explains the privacy-respecting behavior.
+
 ### Application Flow
 
 1. **Initialization** ([js/main.js](js/main.js)):
 
    ```
-   DOM Ready → AnimationController → ChatManager → InputComponent
+   Tracking Init → DOM Ready → AnimationController → ChatManager → InputComponent
    ```
 
 2. **User Interaction Flow**:
@@ -609,6 +632,7 @@ If JavaScript errors:
 | Custom CSS | [src/styles.css](src/styles.css) |
 | Constants | [js/utils/constants.js](js/utils/constants.js) |
 | Random phrases | [js/config/phrases.js](js/config/phrases.js) |
+| Tracking config | [js/config/tracking.js](js/config/tracking.js) |
 
 ### DOM Selectors
 
