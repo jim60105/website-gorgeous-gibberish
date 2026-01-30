@@ -257,20 +257,61 @@ describe('AnimationController', () => {
   });
   
   describe('endStreaming', () => {
-    test('should remove streaming cursor after queue finishes', (done) => {
+    test('should flush remaining queue and remove streaming cursor immediately', () => {
       const element = document.querySelector('#ai-response');
       element.classList.add('streaming-cursor');
+      element.innerHTML = 'Initial text';
       
-      // Make sure queue is empty
+      // Add items to queue
+      animationController.contentQueue = [
+        { type: 'char', content: ' ' },
+        { type: 'char', content: 'R' },
+        { type: 'char', content: 'e' },
+        { type: 'char', content: 'm' },
+        { type: 'char', content: 'a' },
+        { type: 'char', content: 'i' },
+        { type: 'char', content: 'n' },
+        { type: 'char', content: 'i' },
+        { type: 'char', content: 'n' },
+        { type: 'char', content: 'g' },
+      ];
+      animationController.queueIndex = 0;
+      animationController.accumulatedHTML = 'Initial text';
+      animationController.isProcessingQueue = true;
+      
+      // Call endStreaming
+      animationController.endStreaming();
+      
+      // Should immediately flush all content to DOM
+      expect(element.innerHTML).toBe('Initial text Remaining');
+      
+      // Should remove streaming cursor immediately
+      expect(element.classList.contains('streaming-cursor')).toBe(false);
+      
+      // Should clear queue
+      expect(animationController.contentQueue.length).toBe(0);
+      expect(animationController.queueIndex).toBe(0);
+      expect(animationController.accumulatedHTML).toBe('');
+      expect(animationController.isProcessingQueue).toBe(false);
+    });
+    
+    test('should handle empty queue gracefully', () => {
+      const element = document.querySelector('#ai-response');
+      element.classList.add('streaming-cursor');
+      element.innerHTML = 'Complete text';
+      
+      // Queue is empty
       animationController.contentQueue = [];
+      animationController.queueIndex = 0;
+      animationController.accumulatedHTML = 'Complete text';
       
       animationController.endStreaming();
       
-      // Wait for the check interval to run
-      setTimeout(() => {
-        expect(element.classList.contains('streaming-cursor')).toBe(false);
-        done();
-      }, 200);
+      // Should not change content
+      expect(element.innerHTML).toBe('Complete text');
+      
+      // Should remove cursor
+      expect(element.classList.contains('streaming-cursor')).toBe(false);
     });
   });
   

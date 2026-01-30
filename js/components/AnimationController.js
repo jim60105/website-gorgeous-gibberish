@@ -14,7 +14,6 @@ export class AnimationController {
     this.queueIndex = 0; // Track current position in queue (avoids shift() O(n) cost)
     this.isProcessingQueue = false;
     this.queueInterval = null;
-    this.endStreamingInterval = null;
     this.accumulatedHTML = ''; // Accumulated HTML string
     
     this.init();
@@ -198,10 +197,6 @@ export class AnimationController {
       clearInterval(this.queueInterval);
       this.queueInterval = null;
     }
-    if (this.endStreamingInterval) {
-      clearInterval(this.endStreamingInterval);
-      this.endStreamingInterval = null;
-    }
     this.isProcessingQueue = false;
     this.queueIndex = 0;
     this.accumulatedHTML = '';
@@ -294,29 +289,43 @@ export class AnimationController {
   
   /**
    * Signal end of streaming
+   * Flushes all remaining content in queue to DOM immediately
    */
   endStreaming() {
     const element = document.querySelector(SELECTORS.AI_RESPONSE);
     if (!element) return;
     
-    // Wait for queue to finish processing
-    const checkQueue = setInterval(() => {
-      if (this.queueIndex >= this.contentQueue.length) {
-        clearInterval(checkQueue);
-        this.stopQueueProcessing();
-        
-        // Clear processed queue to free memory
-        this.contentQueue = [];
-        this.queueIndex = 0;
-        
-        if (element) {
-          element.classList.remove('streaming-cursor');
-        }
-      }
-    }, 100);
+    // Save accumulated HTML before stopping queue processing
+    const currentHTML = this.accumulatedHTML || element.innerHTML;
     
-    // Store interval for cleanup
-    this.endStreamingInterval = checkQueue;
+    // Stop the queue processing interval
+    if (this.queueInterval) {
+      clearInterval(this.queueInterval);
+      this.queueInterval = null;
+    }
+    
+    // Flush remaining content in queue to DOM immediately
+    if (this.queueIndex < this.contentQueue.length) {
+      // Build HTML from all remaining tokens
+      let remainingHTML = currentHTML;
+      for (let i = this.queueIndex; i < this.contentQueue.length; i++) {
+        remainingHTML += this.contentQueue[i].content;
+      }
+      
+      // Update DOM once with all remaining content
+      element.innerHTML = remainingHTML;
+    }
+    
+    // Clear processed queue to free memory
+    this.contentQueue = [];
+    this.queueIndex = 0;
+    this.accumulatedHTML = '';
+    this.isProcessingQueue = false;
+    
+    // Remove cursor
+    if (element) {
+      element.classList.remove('streaming-cursor');
+    }
   }
   
   /**

@@ -277,29 +277,28 @@ describe('HTML Rendering and Rate Limiting', () => {
   });
   
   describe('endStreaming', () => {
-    test('should wait for queue to finish before removing cursor', (done) => {
+    test('should flush remaining queue immediately and remove cursor', () => {
       const element = document.querySelector('#ai-response');
+      element.innerHTML = 'Initial';
       
       animationController.enqueueContent('AB');
       animationController.startQueueProcessing(element);
+      animationController.accumulatedHTML = 'Initial';
       element.classList.add('streaming-cursor');
       
       // Call endStreaming immediately
       animationController.endStreaming();
       
-      // Cursor should still be there while queue is processing
-      setTimeout(() => {
-        // Note: cursor might already be removed depending on timing
-        // Just check that the element exists
-        expect(element).toBeTruthy();
-      }, 100);
+      // All content should be flushed immediately to DOM
+      expect(element.innerHTML).toBe('InitialAB');
       
-      // After queue finishes, cursor should be removed
-      setTimeout(() => {
-        expect(element.classList.contains('streaming-cursor')).toBe(false);
-        done();
-      }, 700);
-    }, 15000);
+      // Cursor should be removed immediately
+      expect(element.classList.contains('streaming-cursor')).toBe(false);
+      
+      // Queue should be cleared
+      expect(animationController.contentQueue.length).toBe(0);
+      expect(animationController.isProcessingQueue).toBe(false);
+    });
     
     test('should stop queue processing after completion', (done) => {
       const element = document.querySelector('#ai-response');
