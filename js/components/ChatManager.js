@@ -366,19 +366,21 @@ export class ChatManager {
    * Uses auto behavior (not smooth) to avoid lag during real-time streaming
    */
   scrollToBottom() {
-    // Method 1: Scroll the main content area (for chat container)
-    const chatMain = document.querySelector('#chat-container > main');
-    if (chatMain) {
-      chatMain.scrollTop = chatMain.scrollHeight;
-    }
-    
-    // Method 2: Also scroll the window to ensure AI response is visible
+    // Method 1: Scroll the window to ensure AI response is visible
+    // Use 'nearest' instead of 'end' to prevent content from being covered by fixed footer
     const aiResponse = document.querySelector('#ai-response');
     if (aiResponse) {
-      // Use scrollIntoView with auto behavior to prevent lag during streaming
-      // 'auto' instead of 'smooth' ensures immediate scrolling for real-time updates
-      aiResponse.scrollIntoView({ behavior: 'auto', block: 'end' });
+      aiResponse.scrollIntoView({ behavior: 'auto', block: 'nearest' });
     }
+    
+    // Method 2: Additionally scroll to the absolute bottom to show latest content
+    // Add a small delay to ensure the content has been rendered
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'auto'
+      });
+    });
   }
   
   /**

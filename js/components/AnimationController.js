@@ -19,8 +19,7 @@ export class AnimationController {
     // Cache DOM elements
     this.heroContainer = document.querySelector('.hero-container');
     this.heroTitle = document.querySelector('.hero-title');
-    this.heroSubtitle = document.querySelector('.hero-subtitle');
-    this.usageHint = document.querySelector('.usage-hint');
+    // Note: heroSubtitle and usageHint removed from DOM
     this.appContainer = document.querySelector('#app');
     this.chatContainer = document.querySelector('#chat-container');
     this.inputContainer = document.querySelector('#input-container');
@@ -39,8 +38,6 @@ export class AnimationController {
     
     const elements = {
       heroTitle: document.querySelector('.hero-title'),
-      heroSubtitle: document.querySelector('.hero-subtitle'),
-      usageHint: document.querySelector('.usage-hint'),
       chatHeader: document.querySelector('.chat-header'),
       topicSection: this.topicSection,
       aiResponseContainer: this.aiResponseContainer,
@@ -48,10 +45,9 @@ export class AnimationController {
     
     try {
       // Phase 1: Fade out initial elements (300ms)
+      // Note: heroSubtitle and usageHint removed from DOM
       const fadeOutPromises = [
         this.fadeOut(elements.heroTitle, 300),
-        this.fadeOut(elements.heroSubtitle, 300),
-        this.fadeOut(elements.usageHint, 300),
       ];
       await Promise.all(fadeOutPromises);
       
@@ -102,35 +98,23 @@ export class AnimationController {
       // Step 3: Reset hero elements visibility before fade in
       // 重要：確保所有子元素的 hidden class 被移除
       const heroTitle = this.heroTitle || document.querySelector('.hero-title');
-      const heroSubtitle = this.heroSubtitle || document.querySelector('.hero-subtitle');
       
       if (heroTitle) {
         heroTitle.classList.remove('hidden');
         heroTitle.style.visibility = 'visible';
         heroTitle.style.opacity = '0';
       }
-      if (heroSubtitle) {
-        heroSubtitle.classList.remove('hidden');
-        heroSubtitle.style.visibility = 'visible';
-        heroSubtitle.style.opacity = '0';
-      }
       if (this.heroContainer) {
         this.heroContainer.classList.remove('hidden');
         this.heroContainer.style.visibility = 'visible';
         this.heroContainer.style.opacity = '0';
       }
-      if (this.usageHint) {
-        this.usageHint.classList.remove('hidden');
-        this.usageHint.style.visibility = 'visible';
-        this.usageHint.style.opacity = '0';
-      }
       
       // Step 4: Show initial state elements with fade in
+      // Note: heroSubtitle and usageHint removed from DOM
       await Promise.all([
         this.fadeIn(this.heroContainer, ANIMATION_DURATION.FADE_IN),
-        this.fadeIn(this.usageHint, ANIMATION_DURATION.FADE_IN),
-        heroTitle ? this.fadeIn(heroTitle, ANIMATION_DURATION.FADE_IN) : Promise.resolve(),
-        heroSubtitle ? this.fadeIn(heroSubtitle, ANIMATION_DURATION.FADE_IN) : Promise.resolve()
+        heroTitle ? this.fadeIn(heroTitle, ANIMATION_DURATION.FADE_IN) : Promise.resolve()
       ]);
       
       this.currentState = 'initial';
