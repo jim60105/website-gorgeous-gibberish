@@ -15,7 +15,7 @@ export const API_CONFIG = {
   // Model configuration
   model: 'moonshotai/kimi-k2.5',
   maxTokens: 1500,
-  temperature: 1.0,
+  temperature: 0.1,
   reasoningEffort: 'none',
   
   // System prompt for the AI
