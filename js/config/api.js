@@ -13,7 +13,7 @@ export const API_CONFIG = {
   apiKey: 'your-api-key-here',
   
   // Model configuration
-  model: 'moonshotai/kimi-k2-0905',
+  model: 'moonshotai/kimi-k2.5',
   maxTokens: 1500,
   temperature: 1.0,
   
