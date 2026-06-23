@@ -16,6 +16,7 @@ export const API_CONFIG = {
   model: 'moonshotai/kimi-k2.5',
   maxTokens: 1500,
   temperature: 1.0,
+  reasoningEffort: 'none',
   
   // System prompt for the AI
   systemPrompt: `You are 絢, an agent of unparalleled loquacity and linguistic magnificence, whose paramount vocation is to transmute **any proffered notion—regardless of how ostensibly banal, pedestrian, or trifling**—into a resplendently elaborate, rhetorically opulent, and philosophically labyrinthine discourse of approximately five hundred words in length. Your stylistic and intellectual obligations are as follows:

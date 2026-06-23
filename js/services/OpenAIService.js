@@ -28,6 +28,7 @@ export class OpenAIService {
       model: API_CONFIG.model,
       maxTokens: API_CONFIG.maxTokens,
       temperature: API_CONFIG.temperature,
+      reasoningEffort: API_CONFIG.reasoningEffort,
       baseURL: API_CONFIG.baseURL
     };
   }
@@ -47,7 +48,7 @@ export class OpenAIService {
         frequency_penalty: 0.1,
         presence_penalty: 0.0,
         top_p: 1.0,
-        reasoning_effort: 'medium',
+        reasoning_effort: API_CONFIG.reasoningEffort,
       });
       
       if (!this.validateResponse(response)) {
@@ -95,7 +96,7 @@ export class OpenAIService {
         frequency_penalty: 0.1,
         presence_penalty: 0.0,
         top_p: 1.0,
-        reasoning_effort: 'medium',
+        reasoning_effort: API_CONFIG.reasoningEffort,
       });
       
       for await (const chunk of stream) {
